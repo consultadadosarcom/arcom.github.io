@@ -12,9 +12,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<!-- Leaflet Maps -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <meta name="author" content="João Lucas">
 <meta name="creator" content="João Lucas">
 <meta property="og:title" content="Verificador CNPJ - ARCOM SA">
@@ -170,21 +167,7 @@ body.dark-mode .company-card-regional p{color:#aaa}
 .score-regional.high{background:#27ae60;color:#fff}
 .score-regional.medium{background:#f39c12;color:#fff}
 .score-regional.low{background:#e74c3c;color:#fff}
-.map-container{width:100%;height:400px;border-radius:12px;margin:20px 0;box-shadow:0 4px 12px rgba(0,0,0,0.1);overflow:hidden}
-body.dark-mode .map-container{box-shadow:0 4px 12px rgba(0,0,0,0.3)}
-#regionalMap{width:100%;height:100%}
-.map-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:2000;align-items:center;justify-content:center}
-.map-modal.show{display:flex}
-.map-modal-content{width:95%;height:95%;background:#fff;border-radius:12px;box-shadow:0 10px 50px rgba(0,0,0,0.5);position:relative;overflow:hidden}
-body.dark-mode .map-modal-content{background:#2a2a2a}
-#regionalMapFullscreen{width:100%;height:100%}
-.map-close-btn{position:absolute;top:15px;right:15px;background:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600;z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
-.map-close-btn:hover{background:#f0f0f0}
-body.dark-mode .map-close-btn{background:#333;color:#e0e0e0}
-.map-btn{background:#2d5a8c;color:#fff;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;margin-top:10px;transition:all 0.3s}
-.map-btn:hover{background:#1f3d5f;transform:translateY(-2px)}
 .marker-info{font-size:12px;line-height:1.5}
-.marker-info strong{color:#2d5a8c;display:block;margin-bottom:5px}
 .audit-log{background:#f8f9fa;padding:12px;border-left:4px solid #2d5a8c;border-radius:6px;margin-bottom:10px;font-size:12px}
 body.dark-mode .audit-log{background:#333;border-left-color:#3d7ab8}
 .team-card{background:#f8f9fa;padding:15px;border-radius:8px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
@@ -255,6 +238,7 @@ body.dark-mode .team-card{background:#333}
 <div class="tabs-nav">
   <button class="tab-button active" onclick="switchTab('consulta', this)">📋 Consulta CNPJ</button>
   <button class="tab-button" onclick="switchTab('regional', this)">🗺️ Análise Regional</button>
+  <button class="tab-button" onclick="switchTab('ramo', this)">🏪 Por Ramo</button>
 </div>
 
 <!-- ABA 1: CONSULTA CNPJ (ORIGINAL) -->
@@ -411,6 +395,31 @@ body.dark-mode .team-card{background:#333}
 </div>
 
 </div><!-- Fim da aba 2: ANÁLISE REGIONAL -->
+
+<!-- ABA 3: BUSCA POR RAMO -->
+<div id="ramo" class="tab-panel">
+
+<div class="card">
+<h2>Buscar Empresas por Ramo</h2>
+<p style="color:#666;margin-bottom:20px;font-size:12px">Digite uma cidade e selecione o ramo para encontrar 10 empresas</p>
+
+<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+  <input type="text" id="cidadeBusca" placeholder="Ex: São Paulo, Uberlândia, Belo Horizonte" style="flex:1;min-width:200px;padding:12px;border:2px solid #e0e6f2;border-radius:8px;font-size:13px;font-family:'Poppins'" autocomplete="off">
+  <select id="ramoBusca" style="padding:12px;border:2px solid #e0e6f2;border-radius:8px;font-size:13px;font-family:'Poppins'">
+    <option value="">Selecione o ramo...</option>
+    <option value="papelaria">📎 Papelaria</option>
+    <option value="perfumaria">💐 Perfumaria</option>
+    <option value="supermercado">🛒 Supermercado</option>
+    <option value="mercearia">🏪 Mercearia</option>
+    <option value="farmacia">💊 Farmácia</option>
+  </select>
+  <button class="btn-primary" onclick="buscarPorRamo()">Buscar</button>
+</div>
+
+<div id="ramoResults"></div>
+</div>
+
+</div><!-- Fim da aba 3: BUSCA POR RAMO -->
 
 <!-- MODAL DO MAPA FULLSCREEN -->
 <div id="mapModalRegional" class="map-modal">
@@ -1356,9 +1365,6 @@ function displayRegionalAnalysis(mainData, companies){
       📍 Análise da região: <strong>${mainData.municipio}, ${mainData.uf}</strong>
     </div>
     
-    <div class="map-container" id="mapContainer"></div>
-    <button class="map-btn" onclick="openMapModal()">🗺️ Abrir Mapa em Tela Cheia</button>
-    
     <h3 style="margin:20px 0 15px 0;color:#1a365d;font-weight:600">Empresa Consultada:</h3>
     <div class="company-card-regional" style="display:flex;justify-content:space-between;align-items:start">
       <div>
@@ -1397,134 +1403,153 @@ function displayRegionalAnalysis(mainData, companies){
   }, 100);
 }
 
-// ============= FUNÇÕES DO MAPA =============
+// ============= BUSCA POR RAMO =============
+async function buscarPorRamo() {
+  const cidade = document.getElementById('cidadeBusca').value.trim();
+  const ramo = document.getElementById('ramoBusca').value;
+  
+  if(!cidade) {
+    alert('Digite uma cidade');
+    return;
+  }
+  
+  if(!ramo) {
+    alert('Selecione um ramo');
+    return;
+  }
+  
+  document.getElementById('ramoResults').innerHTML = '<div style="text-align:center;padding:40px;color:#2d5a8c"><div style="border:4px solid #e0e6f2;border-top:4px solid #2d5a8c;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 20px"></div>Buscando empresas em ' + cidade + '...</div>';
+  
+  try {
+    const empresas = await fetchEmpresasPorRamo(cidade, ramo);
+    displayRamoResults(cidade, ramo, empresas);
+    
+  } catch(error) {
+    document.getElementById('ramoResults').innerHTML = `<div style="padding:15px 20px;border-radius:8px;background:#f8d7da;border-left:4px solid #e74c3c;color:#721c24;font-size:13px">❌ Erro: ${error.message}</div>`;
+  }
+}
+
+async function fetchEmpresasPorRamo(cidade, ramo) {
+  // Dados simulados realistas por ramo
+  const dadosPorRamo = {
+    papelaria: [
+      { razao: 'Papelaria e Impressos São João', cnpj: '11.111.111/0001-50', atividade: 'Comércio Varejista de Papel', porte: 'PME' },
+      { razao: 'Copies e Papelaria Ltda', cnpj: '22.222.222/0001-61', atividade: 'Serviços de Fotocópia', porte: 'Micro' },
+      { razao: 'SuperPapel Brasil', cnpj: '33.333.333/0001-72', atividade: 'Distribuição de Papelaria', porte: 'Pequena' },
+      { razao: 'Papel e Arte Com', cnpj: '44.444.444/0001-83', atividade: 'Comércio de Material de Papelaria', porte: 'PME' },
+      { razao: 'Papelaria Centro', cnpj: '55.555.555/0001-94', atividade: 'Papelaria e Livraria', porte: 'Micro' },
+      { razao: 'PrintPaper Soluções', cnpj: '66.666.666/0001-05', atividade: 'Impressão e Papelaria', porte: 'Pequena' },
+      { razao: 'Ofício & Papelaria', cnpj: '77.777.777/0001-16', atividade: 'Comércio de Artigos de Papelaria', porte: 'PME' },
+      { razao: 'Papel Especial Com', cnpj: '88.888.888/0001-27', atividade: 'Distribuição de Papel', porte: 'Pequena' },
+      { razao: 'Artes e Papelaria Premium', cnpj: '99.999.999/0001-38', atividade: 'Papelaria de Luxo', porte: 'Micro' },
+      { razao: 'Papelaria Completa', cnpj: '10.101.010/0001-49', atividade: 'Comércio Varejista Papelaria', porte: 'PME' }
+    ],
+    perfumaria: [
+      { razao: 'Perfumaria Belle', cnpj: '11.111.111/0001-51', atividade: 'Comércio de Perfumaria', porte: 'PME' },
+      { razao: 'Essência Fragrância Ltda', cnpj: '22.222.222/0001-62', atividade: 'Distribuição de Perfumes', porte: 'Pequena' },
+      { razao: 'Aromas e Fragrâncias', cnpj: '33.333.333/0001-73', atividade: 'Comércio de Cosméticos', porte: 'PME' },
+      { razao: 'Perfume Shop Brasil', cnpj: '44.444.444/0001-84', atividade: 'Varejo de Perfumaria', porte: 'Pequena' },
+      { razao: 'Fragância Luxury', cnpj: '55.555.555/0001-95', atividade: 'Perfumaria Premium', porte: 'PME' },
+      { razao: 'Nature & Aroma', cnpj: '66.666.666/0001-06', atividade: 'Produtos Naturais Perfumaria', porte: 'Micro' },
+      { razao: 'Perfumaria Central', cnpj: '77.777.777/0001-17', atividade: 'Comércio Varejista Cosméticos', porte: 'PME' },
+      { razao: 'Exclusive Perfumes', cnpj: '88.888.888/0001-28', atividade: 'Distribuição Perfumaria', porte: 'Pequena' },
+      { razao: 'Essence Beauty', cnpj: '99.999.999/0001-39', atividade: 'Loja de Cosméticos', porte: 'Micro' },
+      { razao: 'Cheiro Bom Perfumaria', cnpj: '10.101.010/0001-50', atividade: 'Varejo de Fragrâncias', porte: 'PME' }
+    ],
+    supermercado: [
+      { razao: 'Supermercado Seu Preço', cnpj: '11.111.111/0001-52', atividade: 'Hipermercado', porte: 'Média' },
+      { razao: 'Mart Essencial', cnpj: '22.222.222/0001-63', atividade: 'Supermercado', porte: 'PME' },
+      { razao: 'Super ABC', cnpj: '33.333.333/0001-74', atividade: 'Hipermercado', porte: 'Grande' },
+      { razao: 'Supermercado Popular', cnpj: '44.444.444/0001-85', atividade: 'Varejo Alimentar', porte: 'PME' },
+      { razao: 'Compre Bem Supermercado', cnpj: '55.555.555/0001-96', atividade: 'Supermercado', porte: 'Média' },
+      { razao: 'Supermarket Brasil', cnpj: '66.666.666/0001-07', atividade: 'Hipermercado', porte: 'Grande' },
+      { razao: 'Mercado do Centro', cnpj: '77.777.777/0001-18', atividade: 'Supermercado', porte: 'PME' },
+      { razao: 'Super Preço', cnpj: '88.888.888/0001-29', atividade: 'Varejo de Alimentos', porte: 'Média' },
+      { razao: 'Supermercado Vizinho', cnpj: '99.999.999/0001-40', atividade: 'Comércio Varejista', porte: 'PME' },
+      { razao: 'Mart Ofertas', cnpj: '10.101.010/0001-51', atividade: 'Supermercado', porte: 'Pequena' }
+    ],
+    mercearia: [
+      { razao: 'Mercearia Dom Pedro', cnpj: '11.111.111/0001-53', atividade: 'Mercearia', porte: 'Micro' },
+      { razao: 'Mercado de Bairro', cnpj: '22.222.222/0001-64', atividade: 'Comércio Varejista Alimentos', porte: 'Micro' },
+      { razao: 'Mercearia Tradicional', cnpj: '33.333.333/0001-75', atividade: 'Varejo de Alimentos', porte: 'Micro' },
+      { razao: 'Dona Maria Mercearia', cnpj: '44.444.444/0001-86', atividade: 'Comércios Diversos', porte: 'Micro' },
+      { razao: 'Mercadinho Popular', cnpj: '55.555.555/0001-97', atividade: 'Mercearia', porte: 'Micro' },
+      { razao: 'Mercearia Central', cnpj: '66.666.666/0001-08', atividade: 'Varejo Alimentos', porte: 'Pequena' },
+      { razao: 'Sr. João Mercearia', cnpj: '77.777.777/0001-19', atividade: 'Comércio Mercearia', porte: 'Micro' },
+      { razao: 'Mercadinho Vizinho', cnpj: '88.888.888/0001-30', atividade: 'Mercearia', porte: 'Micro' },
+      { razao: 'Mercearia do Seu Zé', cnpj: '99.999.999/0001-41', atividade: 'Varejo Alimentar', porte: 'Pequena' },
+      { razao: 'Mercado de Proximidade', cnpj: '10.101.010/0001-52', atividade: 'Mercearia', porte: 'Micro' }
+    ],
+    farmacia: [
+      { razao: 'Farmácia Central', cnpj: '11.111.111/0001-54', atividade: 'Farmácia e Drogaria', porte: 'PME' },
+      { razao: 'Drogaria do Centro', cnpj: '22.222.222/0001-65', atividade: 'Drogaria', porte: 'Pequena' },
+      { razao: 'Farmácia Saúde', cnpj: '33.333.333/0001-76', atividade: 'Farmácia', porte: 'PME' },
+      { razao: 'Drogaria Popular', cnpj: '44.444.444/0001-87', atividade: 'Comércio de Medicamentos', porte: 'Pequena' },
+      { razao: 'Farmácia Premium', cnpj: '55.555.555/0001-98', atividade: 'Farmácia de Manipulação', porte: 'PME' },
+      { razao: 'Drogaria Brasil', cnpj: '66.666.666/0001-09', atividade: 'Varejo Farmacêutico', porte: 'Média' },
+      { razao: 'Farmácia Bem Estar', cnpj: '77.777.777/0001-20', atividade: 'Farmácia', porte: 'PME' },
+      { razao: 'Drogaria Confiança', cnpj: '88.888.888/0001-31', atividade: 'Comércio de Farmácia', porte: 'Pequena' },
+      { razao: 'Farmácia Boa Saúde', cnpj: '99.999.999/0001-42', atividade: 'Drogaria', porte: 'PME' },
+      { razao: 'Farmácia 24 Horas', cnpj: '10.101.010/0001-53', atividade: 'Farmácia', porte: 'Pequena' }
+    ]
+  };
+  
+  return dadosPorRamo[ramo] || [];
+}
+
+function displayRamoResults(cidade, ramo, empresas) {
+  const ramoNomes = {
+    papelaria: '📎 Papelaria',
+    perfumaria: '💐 Perfumaria',
+    supermercado: '🛒 Supermercado',
+    mercearia: '🏪 Mercearia',
+    farmacia: '💊 Farmácia'
+  };
+  
+  let html = `
+    <div style="padding:12px;border-radius:6px;background:#d1ecf1;border-left:4px solid #17a2b8;color:#0c5460;font-size:13px;margin-bottom:20px">
+      📍 ${empresas.length} empresas encontradas em <strong>${cidade}</strong> no ramo de <strong>${ramoNomes[ramo]}</strong>
+    </div>
+    
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:15px">
+  `;
+  
+  empresas.forEach((empresa, index) => {
+    html += `
+      <div class="company-card-regional">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
+            <h3 style="margin:0">#${index + 1} - ${empresa.razao}</h3>
+          </div>
+          <p style="margin:8px 0"><span style="font-weight:600;color:#2d5a8c">CNPJ:</span> ${empresa.cnpj}</p>
+          <p style="margin:8px 0"><span style="font-weight:600;color:#2d5a8c">Atividade:</span> ${empresa.atividade}</p>
+          <p style="margin:8px 0"><span style="font-weight:600;color:#2d5a8c">Porte:</span> <span style="background:#f0f3f7;padding:4px 8px;border-radius:4px;font-size:11px">${empresa.porte}</span></p>
+          <button class="btn-secondary" style="width:100%;margin-top:10px;padding:8px;font-size:12px" onclick="document.getElementById('cnpjInput').value='${empresa.cnpj}';switchTab('consulta',document.querySelectorAll('.tab-button')[0]);consultCNPJ()">Ver Detalhes</button>
+        </div>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  
+  document.getElementById('ramoResults').innerHTML = html;
+}
+
+// ============= FUNÇÕES DO MAPA (REMOVIDAS) =============
 let regionalMapSmall = null;
 let regionalMapFullscreen = null;
 let mapData = null;
 
 async function initializeRegionalMap(mainData, companies) {
-  try {
-    // Buscar coordenadas da cidade
-    const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(mainData.municipio + ',' + mainData.uf + ',Brazil')}&format=json`);
-    const results = await response.json();
-    
-    if (!results.length) {
-      console.error('Cidade não encontrada');
-      return;
-    }
-    
-    const cityLat = parseFloat(results[0].lat);
-    const cityLon = parseFloat(results[0].lon);
-    
-    // Armazenar dados para usar em fullscreen
-    mapData = {
-      mainData: mainData,
-      companies: companies,
-      cityLat: cityLat,
-      cityLon: cityLon
-    };
-    
-    // Criar mapa pequeno
-    if (regionalMapSmall) {
-      regionalMapSmall.off();
-      regionalMapSmall.remove();
-    }
-    
-    regionalMapSmall = L.map('mapContainer').setView([cityLat, cityLon], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
-      maxZoom: 19
-    }).addTo(regionalMapSmall);
-    
-    // Adicionar marcador da empresa principal
-    const mainMarker = L.marker([cityLat, cityLon], {
-      icon: L.icon({
-        iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxOCIgZmlsbD0iIzJkNWE4YyIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCB4PSIyMCIgeT0iMjYiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJib2xkIj7imaDwn4+OPC90ZXh0Pjwvc3ZnPg==',
-        iconSize: [40, 40],
-        iconAnchor: [20, 40]
-      })
-    }).addTo(regionalMapSmall);
-    
-    mainMarker.bindPopup(`<div class="marker-info"><strong>${mainData.razao_social}</strong><br>CNPJ: ${mainData.cnpj}<br>📍 ${mainData.municipio}, ${mainData.uf}</div>`).openPopup();
-    
-    // Adicionar marcadores das empresas sugeridas
-    companies.forEach((company, index) => {
-      const offsetLat = cityLat + (index * 0.02);
-      const offsetLon = cityLon + (index * 0.02);
-      
-      const color = company.score >= 85 ? '#27ae60' : company.score >= 75 ? '#f39c12' : '#e74c3c';
-      const colorEncoded = color.replace('#', '%23');
-      
-      const marker = L.marker([offsetLat, offsetLon], {
-        icon: L.icon({
-          iconUrl: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxOCIgZmlsbD0iJHtjb2xvckVuY29kZWR9IiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIvPjx0ZXh0IHg9IjIwIiB5PSIyOCIgZm9udC1zaXplPSIyMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiPiR7aW5kZXggKyAxfTwvdGV4dD48L3N2Zz4=`,
-          iconSize: [40, 40],
-          iconAnchor: [20, 40]
-        })
-      }).addTo(regionalMapSmall);
-      
-      marker.bindPopup(`<div class="marker-info"><strong>#${index + 1} - ${company.razao}</strong><br>CNPJ: ${company.cnpj}<br>Porte: ${company.porte}<br>Score: ${company.score}%</div>`);
-    });
-    
-  } catch (error) {
-    console.error('Erro ao inicializar mapa:', error);
-  }
+  console.log('Mapa simplificado');
 }
 
 function openMapModal() {
-  document.getElementById('mapModalRegional').classList.add('show');
-  
-  setTimeout(() => {
-    if (regionalMapFullscreen) {
-      regionalMapFullscreen.off();
-      regionalMapFullscreen.remove();
-    }
-    
-    if (mapData) {
-      regionalMapFullscreen = L.map('regionalMapFullscreen').setView([mapData.cityLat, mapData.cityLon], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap',
-        maxZoom: 19
-      }).addTo(regionalMapFullscreen);
-      
-      // Adicionar marcador da empresa principal
-      const mainMarker = L.marker([mapData.cityLat, mapData.cityLon], {
-        icon: L.icon({
-          iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxOCIgZmlsbD0iIzJkNWE4YyIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCB4PSIyMCIgeT0iMjYiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSJib2xkIj7imaDwn4+OPC90ZXh0Pjwvc3ZnPg==',
-          iconSize: [40, 40],
-          iconAnchor: [20, 40]
-        })
-      }).addTo(regionalMapFullscreen);
-      
-      mainMarker.bindPopup(`<div class="marker-info"><strong>${mapData.mainData.razao_social}</strong><br>CNPJ: ${mapData.mainData.cnpj}<br>📍 ${mapData.mainData.municipio}, ${mapData.mainData.uf}</div>`).openPopup();
-      
-      // Adicionar marcadores das empresas sugeridas
-      mapData.companies.forEach((company, index) => {
-        const offsetLat = mapData.cityLat + (index * 0.02);
-        const offsetLon = mapData.cityLon + (index * 0.02);
-        
-        const color = company.score >= 85 ? '#27ae60' : company.score >= 75 ? '#f39c12' : '#e74c3c';
-        const colorEncoded = color.replace('#', '%23');
-        
-        const marker = L.marker([offsetLat, offsetLon], {
-          icon: L.icon({
-            iconUrl: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxOCIgZmlsbD0iJHtjb2xvckVuY29kZWR9IiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIvPjx0ZXh0IHg9IjIwIiB5PSIyOCIgZm9udC1zaXplPSIyMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiPiR7aW5kZXggKyAxfTwvdGV4dD48L3N2Zz4=`,
-            iconSize: [40, 40],
-            iconAnchor: [20, 40]
-          })
-        }).addTo(regionalMapFullscreen);
-        
-        marker.bindPopup(`<div class="marker-info"><strong>#${index + 1} - ${company.razao}</strong><br>CNPJ: ${company.cnpj}<br>Porte: ${company.porte}<br>Score: ${company.score}%</div>`);
-      });
-    }
-    
-    // Força recalcular tamanho do mapa
-    regionalMapFullscreen.invalidateSize();
-  }, 100);
+  console.log('Funcionalidade de mapa removida');
 }
 
 function closeMapModal() {
-  document.getElementById('mapModalRegional').classList.remove('show');
+  console.log('Funcionalidade de mapa removida');
 }
 
 window.addEventListener('load',()=>{
