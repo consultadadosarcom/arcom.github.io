@@ -1890,7 +1890,7 @@ async function sendAIMessage() {
     // 1. Crie sua conta grátis em: https://openrouter.ai
     // 2. Gere sua chave em: https://openrouter.ai/keys
     // 3. Cole a chave abaixo (começa com sk-or-...)
-    const OPENROUTER_KEY = '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';
+    const OPENROUTER_KEY = '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';
 
     const messages = [
       {
@@ -1920,7 +1920,7 @@ Não use markdown (**, ##, etc). Seja conciso mas completo.`
         'X-Title': 'ARCOM SA'
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.1-8b-instruct:free',
+        model: 'mistralai/mistral-7b-instruct:free',
         messages: messages,
         max_tokens: 1000,
         temperature: 0.7
