@@ -1907,12 +1907,16 @@ Não use markdown (**, ##, etc). Seja conciso mas completo.`
       }))
     ];
 
+    const origin = (window.location.origin && window.location.origin !== 'null')
+      ? window.location.origin
+      : 'https://arcomsa.app';
+
     const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${OPENROUTER_KEY}`,
-        'HTTP-Referer': window.location.origin,
+        'HTTP-Referer': origin,
         'X-Title': 'ARCOM SA'
       },
       body: JSON.stringify({
@@ -1925,7 +1929,11 @@ Não use markdown (**, ##, etc). Seja conciso mas completo.`
 
     typing.remove();
 
-    if (!resp.ok) throw new Error('Erro na API');
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}));
+      const errMsg = errData?.error?.message || `HTTP ${resp.status}`;
+      throw new Error(errMsg);
+    }
     const data = await resp.json();
     const reply = (data.choices[0].message.content || '').trim();
 
@@ -1934,7 +1942,8 @@ Não use markdown (**, ##, etc). Seja conciso mas completo.`
 
   } catch(err) {
     typing.remove();
-    appendAIMessage('bot', '❌ Não foi possível conectar à IA no momento. Verifique sua conexão e tente novamente.');
+    console.error('Erro IA:', err);
+    appendAIMessage('bot', `❌ Erro: ${err.message || 'Falha ao conectar'}<br><small style="color:#aaa">Abra o Console (F12) para mais detalhes.</small>`);
   }
 
   sendBtn.disabled = false;
