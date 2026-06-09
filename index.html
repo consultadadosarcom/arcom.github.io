@@ -437,6 +437,163 @@ body.dark-mode .team-card{background:#333}
 
 </div>
 
+<!-- ===== CHAT IA FLUTUANTE ===== -->
+
+<!-- Botão flutuante -->
+<div id="aiChatBtn" onclick="toggleAIChat()" title="Assistente IA" style="
+  position:fixed;bottom:30px;right:30px;width:60px;height:60px;
+  background:linear-gradient(135deg,#1a365d,#2d5a8c);
+  border-radius:50%;cursor:pointer;z-index:9000;
+  display:none;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(45,90,140,0.5);
+  transition:transform 0.2s,box-shadow 0.2s;
+  user-select:none;">
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="14" cy="14" r="13" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <!-- Cara do Claude -->
+    <ellipse cx="14" cy="13" rx="7" ry="7.5" fill="white" opacity="0.95"/>
+    <!-- Olhos -->
+    <circle cx="11.5" cy="12" r="1.2" fill="#1a365d"/>
+    <circle cx="16.5" cy="12" r="1.2" fill="#1a365d"/>
+    <!-- Boca sorriso -->
+    <path d="M11 15.5 Q14 17.5 17 15.5" stroke="#1a365d" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <!-- Antena/detalhe topo -->
+    <circle cx="14" cy="5" r="1.5" fill="white" opacity="0.6"/>
+    <line x1="14" y1="5.5" x2="14" y2="7" stroke="white" stroke-width="1.2" opacity="0.6"/>
+  </svg>
+  <!-- Badge de notificação -->
+  <div id="aiBadge" style="
+    position:absolute;top:-2px;right:-2px;
+    background:#e74c3c;color:#fff;
+    border-radius:50%;width:18px;height:18px;
+    font-size:10px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    border:2px solid white;display:none;">1</div>
+</div>
+
+<!-- Janela do chat -->
+<div id="aiChatWindow" style="
+  position:fixed;bottom:100px;right:30px;
+  width:380px;height:540px;
+  background:#fff;border-radius:16px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.2);
+  display:none;flex-direction:column;
+  z-index:8999;overflow:hidden;
+  border:1px solid #e0e6f2;
+  transition:all 0.3s;">
+
+  <!-- Header do chat -->
+  <div style="
+    background:linear-gradient(135deg,#1a365d,#2d5a8c);
+    padding:16px 18px;display:flex;align-items:center;gap:12px;">
+    <div style="
+      width:38px;height:38px;background:rgba(255,255,255,0.15);
+      border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+        <ellipse cx="14" cy="13" rx="7" ry="7.5" fill="white" opacity="0.95"/>
+        <circle cx="11.5" cy="12" r="1.2" fill="#1a365d"/>
+        <circle cx="16.5" cy="12" r="1.2" fill="#1a365d"/>
+        <path d="M11 15.5 Q14 17.5 17 15.5" stroke="#1a365d" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div style="flex:1">
+      <div style="color:#fff;font-weight:700;font-size:14px">Assistente IA</div>
+      <div style="color:#b0c4de;font-size:11px;display:flex;align-items:center;gap:5px">
+        <span style="width:7px;height:7px;background:#27ae60;border-radius:50%;display:inline-block"></span>
+        Online • Powered by Claude
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="clearAIChat()" title="Limpar conversa" style="
+        background:rgba(255,255,255,0.15);border:none;color:#fff;
+        width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:14px;">🗑</button>
+      <button onclick="toggleAIChat()" style="
+        background:rgba(255,255,255,0.15);border:none;color:#fff;
+        width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:18px;line-height:1;">×</button>
+    </div>
+  </div>
+
+  <!-- Mensagens -->
+  <div id="aiMessages" style="
+    flex:1;overflow-y:auto;padding:16px;
+    display:flex;flex-direction:column;gap:12px;
+    background:#f8f9fb;">
+    <!-- mensagem de boas vindas injetada via JS -->
+  </div>
+
+  <!-- Sugestões rápidas -->
+  <div id="aiSuggestions" style="
+    padding:8px 12px;background:#f0f3f7;
+    border-top:1px solid #e0e6f2;
+    display:flex;gap:6px;flex-wrap:wrap;">
+    <button class="ai-suggestion" onclick="sendAISuggestion(this)">Analisar CNPJ consultado</button>
+    <button class="ai-suggestion" onclick="sendAISuggestion(this)">O que é situação INAPTA?</button>
+    <button class="ai-suggestion" onclick="sendAISuggestion(this)">Como funciona a Receita Federal?</button>
+  </div>
+
+  <!-- Input -->
+  <div style="padding:12px;border-top:1px solid #e0e6f2;background:#fff;display:flex;gap:8px;align-items:flex-end;">
+    <textarea id="aiInput"
+      placeholder="Pergunte sobre CNPJs, empresas, tributação..."
+      onkeydown="handleAIKey(event)"
+      style="
+        flex:1;border:2px solid #e0e6f2;border-radius:10px;
+        padding:10px 12px;font-family:'Poppins',sans-serif;font-size:12px;
+        resize:none;height:42px;max-height:100px;line-height:1.4;
+        color:#2c3e50;background:#fff;outline:none;
+        transition:border-color 0.2s;"
+      onfocus="this.style.borderColor='#2d5a8c'"
+      onblur="this.style.borderColor='#e0e6f2'"></textarea>
+    <button id="aiSendBtn" onclick="sendAIMessage()" style="
+      background:linear-gradient(135deg,#1a365d,#2d5a8c);
+      color:#fff;border:none;border-radius:10px;
+      width:42px;height:42px;cursor:pointer;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:18px;transition:opacity 0.2s;">➤</button>
+  </div>
+</div>
+
+<style>
+.ai-suggestion {
+  background:#fff;border:1.5px solid #d0d8e8;color:#2d5a8c;
+  border-radius:20px;padding:5px 11px;font-size:11px;font-weight:600;
+  cursor:pointer;white-space:nowrap;font-family:'Poppins',sans-serif;
+  transition:all 0.2s;
+}
+.ai-suggestion:hover { background:#2d5a8c;color:#fff;border-color:#2d5a8c; }
+.ai-msg-user {
+  align-self:flex-end;background:linear-gradient(135deg,#1a365d,#2d5a8c);
+  color:#fff;border-radius:14px 14px 4px 14px;
+  padding:10px 14px;font-size:12px;max-width:80%;line-height:1.5;word-break:break-word;
+}
+.ai-msg-bot {
+  align-self:flex-start;background:#fff;color:#2c3e50;
+  border-radius:14px 14px 14px 4px;border:1px solid #e0e6f2;
+  padding:10px 14px;font-size:12px;max-width:85%;line-height:1.6;word-break:break-word;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.ai-msg-bot strong { color:#1a365d; }
+.ai-typing {
+  align-self:flex-start;background:#fff;border:1px solid #e0e6f2;
+  border-radius:14px 14px 14px 4px;padding:12px 16px;
+  display:flex;gap:5px;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.ai-typing span {
+  width:7px;height:7px;background:#2d5a8c;border-radius:50%;
+  animation:aiDot 1.2s infinite;opacity:0.4;
+}
+.ai-typing span:nth-child(2) { animation-delay:0.2s; }
+.ai-typing span:nth-child(3) { animation-delay:0.4s; }
+@keyframes aiDot { 0%,80%,100%{opacity:0.4;transform:scale(1)} 40%{opacity:1;transform:scale(1.3)} }
+#aiChatBtn:hover { transform:scale(1.1);box-shadow:0 6px 25px rgba(45,90,140,0.6); }
+body.dark-mode #aiChatWindow { background:#2a2a2a;border-color:#444; }
+body.dark-mode #aiMessages { background:#1e1e1e; }
+body.dark-mode .ai-msg-bot { background:#333;color:#e0e0e0;border-color:#444; }
+body.dark-mode #aiInput { background:#333;color:#e0e0e0;border-color:#444; }
+body.dark-mode #aiSuggestions { background:#2a2a2a;border-color:#444; }
+body.dark-mode .ai-suggestion { background:#333;color:#90caf9;border-color:#555; }
+</style>
+
 <!-- Modal de Exportação -->
 <div id="exportModal" class="modal">
 <div class="modal-content">
@@ -1328,7 +1485,11 @@ async function analyzeRegional(){
     return; 
   }
   
-  document.getElementById('regionalResults').innerHTML = '<div style="text-align:center;padding:40px;color:#2d5a8c"><div style="border:4px solid #e0e6f2;border-top:4px solid #2d5a8c;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 20px"></div>Consultando CNPJ e buscando empresas da região...</div>';
+  document.getElementById('regionalResults').innerHTML = `
+    <div style="text-align:center;padding:40px;color:#2d5a8c">
+      <div style="border:4px solid #e0e6f2;border-top:4px solid #2d5a8c;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 20px"></div>
+      <div id="regionalStatus">Consultando CNPJ na Receita Federal...</div>
+    </div>`;
   
   try {
     const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
@@ -1337,74 +1498,88 @@ async function analyzeRegional(){
     
     const cidade = mainData.municipio;
     const uf = mainData.uf;
-    
-    let potentialCompanies = [];
-    let apiWarning = '';
-    
-    try {
-      potentialCompanies = await searchCompaniesByRegion(cidade, uf);
-    } catch(regionErr) {
-      apiWarning = regionErr.message;
-    }
-    
-    displayRegionalAnalysis(mainData, potentialCompanies, apiWarning);
+    const atividade = mainData.cnae_fiscal_descricao || '';
+
+    document.getElementById('regionalStatus').textContent = `Buscando empresas em ${cidade}/${uf} via IA...`;
+
+    const companies = await buscarEmpresasViaIA(cidade, uf, atividade, 'regional');
+    displayRegionalAnalysis(mainData, companies);
     
   } catch(error) {
-    document.getElementById('regionalResults').innerHTML = `<div style="padding:15px 20px;border-radius:8px;background:#f8d7da;border-left:4px solid #e74c3c;color:#721c24;font-size:13px">❌ Erro: ${error.message}</div>`;
+    document.getElementById('regionalResults').innerHTML = `
+      <div style="padding:15px 20px;border-radius:8px;background:#f8d7da;border-left:4px solid #e74c3c;color:#721c24;font-size:13px">
+        ❌ Erro: ${error.message}
+      </div>`;
   }
 }
 
-async function searchCompaniesByRegion(cidade, uf) {
-  // Busca empresas reais na mesma cidade usando a ReceitaWS
-  // Endpoint: https://receitaws.com.br/v1/cnpj/{cnpj} para detalhes
-  // Para busca por município usamos o CNPJ.ws que tem endpoint de busca
+// ============= BUSCA VIA IA + CONFIRMAÇÃO BRASILAPI =============
+async function buscarEmpresasViaIA(cidade, uf, contexto, modo, ramo) {
+  // Pede ao Claude uma lista de CNPJs reais de empresas da cidade/ramo
+  const prompt = modo === 'ramo'
+    ? `Liste exatamente 10 CNPJs reais e válidos de empresas do ramo "${contexto}" localizadas em ${cidade}/${uf} no Brasil. 
+Retorne APENAS um JSON válido no formato: {"cnpjs": ["00000000000000", ...]}
+Somente os 14 dígitos numéricos, sem formatação. Use CNPJs reais que existam na Receita Federal.`
+    : `Liste exatamente 5 CNPJs reais e válidos de empresas ATIVAS localizadas em ${cidade}/${uf} no Brasil, preferencialmente do setor: ${contexto || 'comércio e serviços'}.
+Retorne APENAS um JSON válido no formato: {"cnpjs": ["00000000000000", ...]}
+Somente os 14 dígitos numéricos, sem formatação. Use CNPJs reais que existam na Receita Federal.`;
+
+  const aiResp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 500,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!aiResp.ok) throw new Error('Erro ao consultar IA');
+  const aiData = await aiResp.json();
+  const text = aiData.content.map(c => c.text || '').join('');
+  
+  let cnpjsIA = [];
   try {
-    // Usamos a API pública CNPJ.ws para buscar empresas ativas na mesma cidade
-    // endpoint: https://www.cnpj.ws/cnpj/busca?municipio=CIDADE&uf=UF&situacao=ATIVA
-    const cidadeEnc = encodeURIComponent(cidade.toUpperCase());
-    const resp = await fetch(`https://www.cnpj.ws/cnpj/busca?municipio=${cidadeEnc}&uf=${uf}&situacao=ATIVA&pagina=1`);
-    if (!resp.ok) throw new Error('sem_dados');
-    const data = await resp.json();
-    const lista = data.data || data.cnpjs || data.empresas || data;
-    if (!Array.isArray(lista) || lista.length === 0) throw new Error('sem_dados');
-    return lista.slice(0, 5).map((e, i) => ({
-      razao: e.razao_social || e.razao || 'N/D',
-      cnpj: fmt((e.cnpj || '').replace(/\D/g,'')),
-      porte: e.porte || '—',
-      atividade: e.cnae_fiscal_descricao || e.atividade || '—',
-      score: Math.max(95 - i * 7, 60)
-    }));
-  } catch(e1) {
-    // Fallback: Minha Receita (open source, sem rate-limit agressivo)
-    try {
-      const cidadeEnc = encodeURIComponent(cidade);
-      const resp = await fetch(`https://minhareceita.org/company/search?city=${cidadeEnc}&state=${uf}&size=5`);
-      if (!resp.ok) throw new Error('sem_dados');
-      const data = await resp.json();
-      const lista = data.companies || data;
-      if (!Array.isArray(lista) || lista.length === 0) throw new Error('sem_dados');
-      return lista.slice(0, 5).map((e, i) => ({
-        razao: e.company_name || e.razao_social || 'N/D',
-        cnpj: e.cnpj ? fmt(e.cnpj.replace(/\D/g,'')) : '—',
-        porte: e.company_size || e.porte || '—',
-        atividade: e.cnae_description || e.atividade || '—',
-        score: Math.max(95 - i * 7, 60)
-      }));
-    } catch(e2) {
-      // Segundo fallback: BrasilAPI - busca empresas pelo CNAE mais comum da região
-      // Usamos a busca genérica pelo município na BrasilAPI
-      try {
-        const resp = await fetch(`https://brasilapi.com.br/api/cnpj/v1/00000000000191`); // teste de conectividade
-        // Se chegou aqui, usa abordagem alternativa via IBGE + múltiplos CNPJs populares da cidade
-        throw new Error('indisponivel');
-      } catch(e3) {
-        throw new Error(`Não foi possível buscar empresas da região de ${cidade}/${uf}. Tente novamente.`);
-      }
-    }
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    cnpjsIA = (parsed.cnpjs || []).map(c => c.replace(/\D/g,''));
+  } catch(e) {
+    // tenta extrair números de 14 dígitos direto do texto
+    const matches = text.match(/\d{14}/g) || [];
+    cnpjsIA = [...new Set(matches)];
   }
+
+  if (cnpjsIA.length === 0) throw new Error('IA não retornou CNPJs válidos');
+
+  // Confirma cada CNPJ na BrasilAPI (dados reais da Receita Federal)
+  const results = [];
+  const max = modo === 'ramo' ? 10 : 5;
+  
+  for (const c of cnpjsIA.slice(0, max + 3)) {
+    if (results.length >= max) break;
+    try {
+      await new Promise(r => setTimeout(r, 200));
+      const r = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${c}`);
+      if (!r.ok) continue;
+      const d = await r.json();
+      if (!d.cnpj) continue;
+      results.push({
+        razao: d.razao_social || 'N/D',
+        cnpj: d.cnpj,
+        porte: d.porte || '—',
+        atividade: d.cnae_fiscal_descricao || '—',
+        municipio: d.municipio || '',
+        uf: d.uf || '',
+        situacao: d.descricao_situacao_cadastral || 'ATIVA',
+        score: Math.max(95 - results.length * 7, 60)
+      });
+    } catch(e) { /* ignora CNPJs que falharem */ }
+  }
+
+  return results;
 }
 
-function displayRegionalAnalysis(mainData, companies, apiWarning){
+function displayRegionalAnalysis(mainData, companies){
   let html = `
     <div style="padding:12px;border-radius:6px;background:#d1ecf1;border-left:4px solid #17a2b8;color:#0c5460;font-size:13px;margin-bottom:20px">
       📍 Análise da região: <strong>${mainData.municipio}, ${mainData.uf}</strong>
@@ -1412,33 +1587,28 @@ function displayRegionalAnalysis(mainData, companies, apiWarning){
     </div>
     
     <h3 style="margin:20px 0 15px 0;color:#1a365d;font-weight:600">Empresa Consultada:</h3>
-    <div class="company-card-regional" style="display:flex;justify-content:space-between;align-items:start">
+    <div class="company-card-regional">
       <div style="flex:1">
         <h3>${mainData.razao_social}</h3>
         <p><span style="font-weight:600;color:#2d5a8c">CNPJ:</span> ${mainData.cnpj}</p>
         <p><span style="font-weight:600;color:#2d5a8c">Cidade:</span> ${mainData.municipio} - ${mainData.uf}</p>
         <p><span style="font-weight:600;color:#2d5a8c">Atividade:</span> ${mainData.cnae_fiscal_descricao || '—'}</p>
-        <p><span style="font-weight:600;color:#2d5a8c">Situação:</span> <span class="score-regional high">${mainData.descricao_situacao_cadastral || mainData.situacao || '—'}</span></p>
+        <p><span style="font-weight:600;color:#2d5a8c">Situação:</span> <span class="score-regional high">${mainData.descricao_situacao_cadastral || '—'}</span></p>
         <p><span style="font-weight:600;color:#2d5a8c">Porte:</span> ${mainData.porte || '—'}</p>
       </div>
     </div>
     
     <h3 style="margin:30px 0 15px 0;color:#1a365d;font-weight:600">Empresas com Potencial de Compra na Região:</h3>
   `;
-
-  if (apiWarning) {
-    html += `<div style="padding:12px;border-radius:6px;background:#fff3cd;border-left:4px solid #f39c12;color:#856404;font-size:12px;margin-bottom:15px">
-      ⚠️ ${apiWarning}
-    </div>`;
-  }
   
   if (companies.length === 0) {
-    html += `<div style="padding:15px;border-radius:8px;background:#f8f9fa;color:#666;font-size:13px;text-align:center">
-      Nenhuma empresa adicional encontrada na região via APIs públicas no momento.
+    html += `<div style="padding:15px;border-radius:8px;background:#fff3cd;border-left:4px solid #f39c12;color:#856404;font-size:13px">
+      ⚠️ Nenhuma empresa confirmada na Receita Federal para esta região. Os CNPJs sugeridos podem não estar ativos ou cadastrados.
     </div>`;
   } else {
     companies.forEach((company, index) => {
       const scoreClass = company.score >= 85 ? 'high' : company.score >= 75 ? 'medium' : 'low';
+      const cnpjNum = company.cnpj.replace(/\D/g,'');
       html += `
         <div class="company-card-regional">
           <div style="display:flex;justify-content:space-between;align-items:start">
@@ -1447,142 +1617,55 @@ function displayRegionalAnalysis(mainData, companies, apiWarning){
               <p><span style="font-weight:600;color:#2d5a8c">CNPJ:</span> ${company.cnpj}</p>
               <p><span style="font-weight:600;color:#2d5a8c">Porte:</span> ${company.porte}</p>
               <p><span style="font-weight:600;color:#2d5a8c">Atividade:</span> ${company.atividade}</p>
+              <p><span style="font-weight:600;color:#2d5a8c">Cidade:</span> ${company.municipio} - ${company.uf}</p>
+              <p><span style="font-weight:600;color:#2d5a8c">Situação:</span> <span style="background:#d4edda;color:#155724;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600">${company.situacao}</span></p>
             </div>
             <span class="score-regional ${scoreClass}" style="margin-left:15px">${company.score}%</span>
           </div>
+          <button class="btn-secondary" style="width:100%;margin-top:10px;padding:8px;font-size:12px" 
+            onclick="document.getElementById('input').value='${cnpjNum}';switchTab('consulta',document.querySelectorAll('.tab-button')[0]);startVerification()">
+            🔍 Ver Detalhes Completos
+          </button>
         </div>
       `;
     });
   }
   
   document.getElementById('regionalResults').innerHTML = html;
-  
-  setTimeout(() => {
-    initializeRegionalMap(mainData, companies);
-  }, 100);
+  setTimeout(() => initializeRegionalMap(mainData, companies), 100);
 }
 
 // ============= BUSCA POR RAMO =============
+const RAMO_LABEL = {
+  papelaria: 'Papelaria e artigos de escritório',
+  perfumaria: 'Perfumaria e cosméticos',
+  supermercado: 'Supermercado e hipermercado',
+  mercearia: 'Mercearia e mini-mercado',
+  farmacia: 'Farmácia e drogaria'
+};
+
 async function buscarPorRamo() {
   const cidade = document.getElementById('cidadeBusca').value.trim();
   const ramo = document.getElementById('ramoBusca').value;
   
-  if(!cidade) {
-    alert('Digite uma cidade');
-    return;
-  }
+  if(!cidade) { alert('Digite uma cidade'); return; }
+  if(!ramo)   { alert('Selecione um ramo'); return; }
   
-  if(!ramo) {
-    alert('Selecione um ramo');
-    return;
-  }
-  
-  document.getElementById('ramoResults').innerHTML = '<div style="text-align:center;padding:40px;color:#2d5a8c"><div style="border:4px solid #e0e6f2;border-top:4px solid #2d5a8c;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 20px"></div>Buscando empresas em ' + cidade + '...</div>';
+  document.getElementById('ramoResults').innerHTML = `
+    <div style="text-align:center;padding:40px;color:#2d5a8c">
+      <div style="border:4px solid #e0e6f2;border-top:4px solid #2d5a8c;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 20px"></div>
+      <div id="ramoStatus">Consultando IA para encontrar empresas reais em ${cidade}...</div>
+    </div>`;
   
   try {
-    const empresas = await fetchEmpresasPorRamo(cidade, ramo);
+    const empresas = await buscarEmpresasViaIA(cidade, '', RAMO_LABEL[ramo], 'ramo', ramo);
     displayRamoResults(cidade, ramo, empresas);
-    
   } catch(error) {
-    document.getElementById('ramoResults').innerHTML = `<div style="padding:15px 20px;border-radius:8px;background:#f8d7da;border-left:4px solid #e74c3c;color:#721c24;font-size:13px">❌ Erro: ${error.message}</div>`;
+    document.getElementById('ramoResults').innerHTML = `
+      <div style="padding:15px 20px;border-radius:8px;background:#f8d7da;border-left:4px solid #e74c3c;color:#721c24;font-size:13px">
+        ❌ Erro: ${error.message}
+      </div>`;
   }
-}
-
-// Mapeamento ramo -> lista de CNAEs reais
-const RAMO_CNAE = {
-  papelaria:    ['4761003','4762800','4742200','1811301','1811302'],
-  perfumaria:   ['4772500','4713005','4729699','2063100','4645101'],
-  supermercado: ['4711301','4711302','4712100','4721102','4721104'],
-  mercearia:    ['4712100','4721101','4721102','4721103','4729699'],
-  farmacia:     ['4771701','4771702','4771703','4772500','4773300']
-};
-
-const RAMO_LABEL = {
-  papelaria: 'Papelaria',
-  perfumaria: 'Perfumaria/Cosméticos',
-  supermercado: 'Supermercado',
-  mercearia: 'Mercearia',
-  farmacia: 'Farmácia/Drogaria'
-};
-
-async function fetchEmpresasPorRamo(cidade, ramo) {
-  const cnaes = RAMO_CNAE[ramo] || [];
-  const errors = [];
-  
-  // Tenta CNPJ.ws — endpoint de busca por município + CNAE
-  for (const cnae of cnaes) {
-    try {
-      const cidadeEnc = encodeURIComponent(cidade.toUpperCase());
-      const resp = await fetch(
-        `https://www.cnpj.ws/cnpj/busca?municipio=${cidadeEnc}&cnae=${cnae}&situacao=ATIVA&pagina=1`,
-        { headers: { 'Accept': 'application/json' } }
-      );
-      if (!resp.ok) { errors.push('cnpjws_' + cnae); continue; }
-      const data = await resp.json();
-      const lista = data.data || data.cnpjs || data.empresas || (Array.isArray(data) ? data : []);
-      if (lista.length > 0) {
-        return lista.slice(0, 10).map(e => ({
-          razao: e.razao_social || e.razao || 'N/D',
-          cnpj: fmt((e.cnpj || '').replace(/\D/g,'')),
-          atividade: e.cnae_fiscal_descricao || e.atividade || RAMO_LABEL[ramo],
-          porte: e.porte || '—',
-          municipio: e.municipio || cidade,
-          uf: e.uf || '—',
-          situacao: e.situacao_cadastral || 'ATIVA'
-        }));
-      }
-    } catch(e) { errors.push(e.message); }
-  }
-
-  // Fallback: ReceitaWS busca por município (endpoint não-oficial mas público)
-  try {
-    const cidadeEnc = encodeURIComponent(cidade);
-    const cnaeP = cnaes[0];
-    const resp = await fetch(
-      `https://receitaws.com.br/v1/company/search?city=${cidadeEnc}&cnae=${cnaeP}&page=1`,
-      { headers: { 'Accept': 'application/json' } }
-    );
-    if (resp.ok) {
-      const data = await resp.json();
-      const lista = data.companies || data.data || (Array.isArray(data) ? data : []);
-      if (lista.length > 0) {
-        return lista.slice(0, 10).map(e => ({
-          razao: e.company_name || e.razao_social || 'N/D',
-          cnpj: e.cnpj ? fmt(e.cnpj.replace(/\D/g,'')) : '—',
-          atividade: e.cnae_description || RAMO_LABEL[ramo],
-          porte: e.company_size || e.porte || '—',
-          municipio: e.city || cidade,
-          uf: e.state || '—',
-          situacao: 'ATIVA'
-        }));
-      }
-    }
-  } catch(e) { errors.push(e.message); }
-
-  // Último fallback: BrasilAPI CNPJ em lote por CNAE via endpoint de listagem
-  try {
-    const cnaeP = cnaes[0];
-    const resp = await fetch(
-      `https://brasilapi.com.br/api/cnpj/v1/cnae/${cnaeP}?municipio=${encodeURIComponent(cidade)}`,
-      { headers: { 'Accept': 'application/json' } }
-    );
-    if (resp.ok) {
-      const lista = await resp.json();
-      if (Array.isArray(lista) && lista.length > 0) {
-        return lista.slice(0, 10).map(e => ({
-          razao: e.razao_social || 'N/D',
-          cnpj: e.cnpj ? fmt(e.cnpj.replace(/\D/g,'')) : '—',
-          atividade: e.cnae_fiscal_descricao || RAMO_LABEL[ramo],
-          porte: e.porte || '—',
-          municipio: e.municipio || cidade,
-          uf: e.uf || '—',
-          situacao: e.descricao_situacao_cadastral || 'ATIVA'
-        }));
-      }
-    }
-  } catch(e) { errors.push(e.message); }
-
-  throw new Error(`Nenhuma empresa encontrada para "${RAMO_LABEL[ramo]}" em ${cidade}. As APIs públicas podem estar temporariamente indisponíveis ou a cidade pode não estar cadastrada com esse nome exato.`);
 }
 
 function displayRamoResults(cidade, ramo, empresas) {
@@ -1596,36 +1679,46 @@ function displayRamoResults(cidade, ramo, empresas) {
   
   let html = `
     <div style="padding:12px;border-radius:6px;background:#d1ecf1;border-left:4px solid #17a2b8;color:#0c5460;font-size:13px;margin-bottom:20px">
-      📍 ${empresas.length} empresa(s) encontrada(s) em <strong>${cidade}</strong> no ramo de <strong>${ramoNomes[ramo]}</strong>
-      <span style="margin-left:10px;background:#17a2b8;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px">✅ Dados reais da Receita Federal</span>
+      📍 ${empresas.length} empresa(s) encontrada(s) em <strong>${cidade}</strong> — <strong>${ramoNomes[ramo]}</strong>
+      <span style="margin-left:10px;background:#17a2b8;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px">✅ Confirmado na Receita Federal</span>
     </div>
-    
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:15px">
   `;
   
+  if (empresas.length === 0) {
+    html += `</div><div style="padding:15px;border-radius:8px;background:#fff3cd;border-left:4px solid #f39c12;color:#856404;font-size:13px">
+      ⚠️ Nenhuma empresa confirmada na Receita Federal. Tente outra cidade ou ramo.
+    </div>`;
+    document.getElementById('ramoResults').innerHTML = html;
+    return;
+  }
+
   empresas.forEach((empresa, index) => {
     const cnpjNum = empresa.cnpj.replace(/\D/g,'');
-    const sitCls = (empresa.situacao||'').toUpperCase().includes('ATIVA') ? '#d4edda' : '#fff3cd';
-    const sitColor = (empresa.situacao||'').toUpperCase().includes('ATIVA') ? '#155724' : '#856404';
+    const sitAtiva = (empresa.situacao||'').toUpperCase().includes('ATIVA');
+    const sitBg = sitAtiva ? '#d4edda' : '#fff3cd';
+    const sitCor = sitAtiva ? '#155724' : '#856404';
     html += `
       <div class="company-card-regional">
         <div>
-          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px">
-            <h3 style="margin:0;flex:1">#${index + 1} - ${empresa.razao}</h3>
-          </div>
-          <p style="margin:8px 0"><span style="font-weight:600;color:#2d5a8c">CNPJ:</span> ${empresa.cnpj}</p>
-          <p style="margin:8px 0"><span style="font-weight:600;color:#2d5a8c">Atividade:</span> ${empresa.atividade}</p>
-          <p style="margin:8px 0"><span style="font-weight:600;color:#2d5a8c">Porte:</span> <span style="background:#f0f3f7;padding:4px 8px;border-radius:4px;font-size:11px">${empresa.porte}</span></p>
-          ${empresa.municipio ? `<p style="margin:8px 0"><span style="font-weight:600;color:#2d5a8c">Município:</span> ${empresa.municipio}${empresa.uf ? ' - ' + empresa.uf : ''}</p>` : ''}
-          <p style="margin:8px 0"><span style="font-weight:600;color:#2d5a8c">Situação:</span> <span style="background:${sitCls};color:${sitColor};padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600">${empresa.situacao || 'ATIVA'}</span></p>
-          <button class="btn-secondary" style="width:100%;margin-top:10px;padding:8px;font-size:12px" onclick="document.getElementById('cnpjInput')&&(document.getElementById('cnpjInput').value='${cnpjNum}');document.getElementById('input').value='${cnpjNum}';switchTab('consulta',document.querySelectorAll('.tab-button')[0]);startVerification()">🔍 Ver Detalhes Completos</button>
+          <h3 style="margin:0 0 10px 0">#${index + 1} - ${empresa.razao}</h3>
+          <p style="margin:6px 0"><span style="font-weight:600;color:#2d5a8c">CNPJ:</span> ${empresa.cnpj}</p>
+          <p style="margin:6px 0"><span style="font-weight:600;color:#2d5a8c">Atividade:</span> ${empresa.atividade}</p>
+          <p style="margin:6px 0"><span style="font-weight:600;color:#2d5a8c">Porte:</span> <span style="background:#f0f3f7;padding:3px 8px;border-radius:4px;font-size:11px">${empresa.porte}</span></p>
+          <p style="margin:6px 0"><span style="font-weight:600;color:#2d5a8c">Cidade:</span> ${empresa.municipio || cidade}${empresa.uf ? ' - ' + empresa.uf : ''}</p>
+          <p style="margin:6px 0"><span style="font-weight:600;color:#2d5a8c">Situação:</span> 
+            <span style="background:${sitBg};color:${sitCor};padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600">${empresa.situacao || 'ATIVA'}</span>
+          </p>
+          <button class="btn-secondary" style="width:100%;margin-top:10px;padding:8px;font-size:12px"
+            onclick="document.getElementById('input').value='${cnpjNum}';switchTab('consulta',document.querySelectorAll('.tab-button')[0]);startVerification()">
+            🔍 Ver Detalhes Completos
+          </button>
         </div>
       </div>
     `;
   });
   
   html += '</div>';
-  
   document.getElementById('ramoResults').innerHTML = html;
 }
 
@@ -1649,6 +1742,196 @@ function closeMapModal() {
 window.addEventListener('load',()=>{
   loadDarkMode();
 });
+
+// ============= CHAT IA FLUTUANTE =============
+let aiChatOpen = false;
+let aiHistory  = [];
+let aiGreeted  = false;
+
+// Mostra o botão só após login
+function showAIButton() {
+  const btn = document.getElementById('aiChatBtn');
+  if (btn) btn.style.display = 'flex';
+}
+
+// Esconde ao deslogar
+function hideAIButton() {
+  const btn = document.getElementById('aiChatBtn');
+  if (btn) btn.style.display = 'none';
+  closeAIChat();
+}
+
+function toggleAIChat() {
+  aiChatOpen ? closeAIChat() : openAIChat();
+}
+
+function openAIChat() {
+  aiChatOpen = true;
+  const win = document.getElementById('aiChatWindow');
+  win.style.display = 'flex';
+  document.getElementById('aiBadge').style.display = 'none';
+
+  if (!aiGreeted) {
+    aiGreeted = true;
+    const userName = (currentUser && (currentUser.displayName || currentUser.email)) || 'usuário';
+    const contexto = Object.keys(allData).length
+      ? `O usuário já consultou ${Object.keys(allData).length} CNPJ(s) nesta sessão.`
+      : 'Nenhum CNPJ consultado ainda nesta sessão.';
+
+    appendAIMessage('bot',
+      `Olá, <strong>${userName.split(' ')[0]}</strong>! 👋<br><br>
+       Sou o assistente IA integrado ao <strong>ARCOM SA</strong>.<br>
+       Posso ajudar com:<br>
+       • Interpretação de dados de CNPJ<br>
+       • Dúvidas sobre situação cadastral<br>
+       • Tributação e natureza jurídica<br>
+       • Análise de empresas e mercado<br><br>
+       ${contexto} Como posso ajudar?`
+    );
+
+    aiHistory = [{
+      role: 'user',
+      content: `Contexto do sistema: Sou um assistente integrado ao ARCOM SA, uma ferramenta de consulta de CNPJ. 
+O usuário logado é "${userName}". ${contexto}
+Responda sempre em português brasileiro, de forma objetiva e útil. 
+Para formatação use <strong> para negrito. Não use markdown.`
+    }, {
+      role: 'assistant',
+      content: `Entendido. Estou pronto para ajudar com questões sobre CNPJ, empresas e dados da Receita Federal.`
+    }];
+  }
+
+  setTimeout(() => {
+    document.getElementById('aiInput').focus();
+    scrollAIToBottom();
+  }, 100);
+}
+
+function closeAIChat() {
+  aiChatOpen = false;
+  document.getElementById('aiChatWindow').style.display = 'none';
+}
+
+function clearAIChat() {
+  aiHistory  = [];
+  aiGreeted  = false;
+  document.getElementById('aiMessages').innerHTML = '';
+  openAIChat();
+}
+
+function appendAIMessage(type, html) {
+  const box = document.getElementById('aiMessages');
+  const div = document.createElement('div');
+  div.className = type === 'user' ? 'ai-msg-user' : 'ai-msg-bot';
+  div.innerHTML = html;
+  box.appendChild(div);
+  scrollAIToBottom();
+  return div;
+}
+
+function scrollAIToBottom() {
+  const box = document.getElementById('aiMessages');
+  box.scrollTop = box.scrollHeight;
+}
+
+function handleAIKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendAIMessage();
+  }
+  // Auto-resize do textarea
+  const ta = document.getElementById('aiInput');
+  ta.style.height = '42px';
+  ta.style.height = Math.min(ta.scrollHeight, 100) + 'px';
+}
+
+function sendAISuggestion(btn) {
+  document.getElementById('aiInput').value = btn.textContent;
+  sendAIMessage();
+}
+
+async function sendAIMessage() {
+  const input = document.getElementById('aiInput');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  // Desabilita o botão enquanto processa
+  const sendBtn = document.getElementById('aiSendBtn');
+  sendBtn.disabled = true;
+  sendBtn.style.opacity = '0.5';
+  input.value = '';
+  input.style.height = '42px';
+
+  // Esconde sugestões após primeira mensagem
+  document.getElementById('aiSuggestions').style.display = 'none';
+
+  appendAIMessage('user', text);
+
+  // Monta contexto com dados da sessão atual
+  let sessionCtx = '';
+  if (Object.keys(allData).length > 0) {
+    const resumo = Object.entries(allData).slice(0, 5).map(([cnpj, d]) =>
+      `CNPJ ${fmt(cnpj)}: ${d.razao} | ${d.situacao} | ${d.porte} | ${d.uf}`
+    ).join('\n');
+    sessionCtx = `\n\nDados consultados nesta sessão:\n${resumo}`;
+  }
+
+  aiHistory.push({ role: 'user', content: text + sessionCtx });
+
+  // Indicador de digitação
+  const typing = document.createElement('div');
+  typing.className = 'ai-typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  document.getElementById('aiMessages').appendChild(typing);
+  scrollAIToBottom();
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `Você é um assistente especializado em CNPJ, Receita Federal, tributação e análise empresarial brasileira, integrado ao sistema ARCOM SA. 
+Responda sempre em português do Brasil, de forma clara e objetiva.
+Use <strong>texto</strong> para destacar informações importantes.
+Para listas use • no início de cada item com <br> para quebras de linha.
+Não use markdown (**, ##, etc). Seja conciso mas completo.`,
+        messages: aiHistory.slice(-12) // mantém contexto das últimas 12 mensagens
+      })
+    });
+
+    typing.remove();
+
+    if (!resp.ok) throw new Error('Erro na API');
+    const data = await resp.json();
+    const reply = data.content.map(c => c.text || '').join('').trim();
+
+    aiHistory.push({ role: 'assistant', content: reply });
+    appendAIMessage('bot', reply);
+
+  } catch(err) {
+    typing.remove();
+    appendAIMessage('bot', '❌ Não foi possível conectar à IA no momento. Verifique sua conexão e tente novamente.');
+  }
+
+  sendBtn.disabled = false;
+  sendBtn.style.opacity = '1';
+  document.getElementById('aiInput').focus();
+}
+
+// Integra com o ciclo de autenticação existente
+const _origLoadUserData = loadUserData;
+loadUserData = async function() {
+  await _origLoadUserData.apply(this, arguments);
+  showAIButton();
+};
+
+const _origLogout = logout;
+logout = function() {
+  hideAIButton();
+  _origLogout.apply(this, arguments);
+};
 </script>
 
 </body>
