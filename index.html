@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ARCOM SA - Verificador CNPJ Moderno</title>
+  <title>ARCOM SA - Verificador CNPJ Moderno | Criado por João Lucas</title>
   
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -441,6 +441,32 @@
       border-top-color: #334155;
     }
 
+    .footer-creator {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      font-size: 16px;
+      display: inline-block;
+      margin-top: 12px;
+    }
+
+    .footer-signature {
+      font-size: 13px;
+      color: var(--text-light);
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: rgba(0, 102, 255, 0.05);
+      border-left: 3px solid var(--primary);
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    body.dark-mode .footer-signature {
+      background: rgba(0, 102, 255, 0.1);
+    }
+
     /* ===== AI CHAT ===== */
     .ai-suggestion {
       background: #fff;
@@ -756,6 +782,10 @@
         bottom: 80px;
         right: 10px;
       }
+
+      .footer-signature {
+        font-size: 12px;
+      }
     }
   </style>
 </head>
@@ -1063,11 +1093,14 @@
   <footer>
     <div class="container-fluid px-4 py-4 text-center">
       <p style="margin-bottom: 8px; color: var(--text-light);">
-        © 2024 ARCOM SA - Verificador CNPJ (Em desenvolvimento)
+        © 2024 ARCOM SA - Verificador CNPJ
       </p>
-      <p style="color: var(--text-light); font-size: 14px;">
-        👨‍💻 Desenvolvido por <strong>João Lucas</strong>
-      </p>
+      <div class="footer-creator">
+        🚀 Ferramenta/Site Criado por João Lucas
+      </div>
+      <div class="footer-signature">
+        <i class="fas fa-code"></i> Desenvolvido com ❤️ em Português Brasil
+      </div>
     </div>
   </footer>
 </div>
