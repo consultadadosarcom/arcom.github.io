@@ -928,7 +928,7 @@
                   <button class="btn btn-outline-secondary" onclick="clearAll()">
                     <i class="fas fa-redo"></i> Limpar
                     </button>
-                     <button class="btn btn-warning" onclick="copiarCNPJsProblema()">
+                     <button class="btn btn-info" onclick="copiarCNPJsProblema()">
                         <i class="fas fa-copy"></i> Copiar Inaptos/Suspensos/Baixados
                        </button>
                   </button>
@@ -1573,13 +1573,33 @@ async function startVerification() {
       const isFav = favorites.includes(cnpj) ? '⭐' : '☆';
       
       tbody.innerHTML += `<tr>
-        <td style="cursor: pointer;" onclick="toggleFavorite('${cnpj}', event)">${isFav}</td>
-        <td><strong>${fmt(cnpj)}</strong></td>
-        <td>${result.razao}</td>
-        <td><span class="badge ${bc}">${result.situacao}</span></td>
-        <td>${result.porte}</td>
-        <td>${result.uf}</td>
-      </tr>`;
+        tbody.innerHTML += `
+<tr style="cursor:pointer;" onclick="toggleDetails('${cnpj}')">
+  <td onclick="toggleFavorite('${cnpj}', event)">${isFav}</td>
+  <td><strong>${fmt(cnpj)}</strong></td>
+  <td>${result.razao}</td>
+  <td><span class="badge ${bc}">${result.situacao}</span></td>
+  <td>${result.porte}</td>
+  <td>${result.uf}</td>
+</tr>
+
+<tr id="details-${cnpj}" style="display:none; background:#f8fafc;">
+  <td colspan="6">
+    <div style="padding:15px; line-height:1.8;">
+      <strong>📞 Telefone:</strong> ${result.telefone || '—'}<br>
+      <strong>📧 Email:</strong> ${result.email || '—'}<br>
+      <strong>🏢 Nome Fantasia:</strong> ${result.nomeFantasia || '—'}<br>
+      <strong>📍 Endereço:</strong> ${result.endereco || '—'}<br>
+      <strong>💰 Capital Social:</strong> ${result.capitalSocial || '—'}<br>
+      <strong>⚖ Natureza Jurídica:</strong> ${result.natureza || '—'}<br>
+      <strong>🧾 Atividade:</strong> ${result.atividade || '—'}<br>
+      <strong>👥 Sócios:</strong> ${result.socios || '—'}<br>
+      <strong>📅 Início Atividade:</strong> ${result.dataInicio || '—'}<br>
+      <strong>🌐 API:</strong> ${result.api || '—'}
+    </div>
+  </td>
+</tr>
+`;
 
       updateStats(total, baix, inap, susp);
 
@@ -1777,14 +1797,142 @@ function saveColumnSettings() {
   // Placeholder
 }
 
-function analyzeRegional() {
+async function analyzeRegional() {
+  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
   const el = document.getElementById('regionalResults');
-  if (el) el.innerHTML = '<p>Funcionalidade em desenvolvimento</p>';
+
+  if (!input || input.length !== 14) {
+    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
+
+  try {
+    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
+    const empresa = await r.json();
+
+    const cidade = empresa.municipio;
+    const uf = empresa.uf;
+
+    const empresas = [];
+
+    for (let i = 0; i < 5; i++) {
+      const consulta = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${Math.floor(Math.random() * 90000000000000) + 10000000000000}`);
+      
+      if (consulta.ok) {
+        const d = await consulta.json();
+
+        if (
+          d.municipio &&
+          d.uf &&
+          d.municipio.toUpperCase() === cidade.toUpperCase() &&
+          d.uf === uf
+        ) {
+          empresas.push(d);
+        }
+      }
+    }
+
+    if (!empresas.length) {
+      el.innerHTML = '<div class="alert alert-danger">Nenhuma empresa encontrada</div>';
+      return;
+    }
+
+    let html = `
+      <div class="alert alert-info">
+        Empresas próximas de <strong>${empresa.razao_social}</strong>
+      </div>
+    `;
+
+    empresas.forEach(emp => {
+      html += `
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5>${emp.razao_social || 'Sem nome'}</h5>
+            <p><strong>CNPJ:</strong> ${emp.cnpj || '—'}</p>
+            <p><strong>Cidade:</strong> ${emp.municipio}/${emp.uf}</p>
+            <p><strong>Situação:</strong> ${emp.descricao_situacao_cadastral || '—'}</p>
+            <p><strong>Atividade:</strong> ${emp.cnae_fiscal_descricao || '—'}</p>
+          </div>
+        </div>
+      `;
+    });
+
+    el.innerHTML = html;
+
+  } catch (e) {
+    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
+  }
 }
 
-function buscarPorRamo() {
+async function buscarPorRamo() {
+  const cidade = document.getElementById('cidadeBusca').value.trim();
+  const ramo = document.getElementById('ramoBusca').value;
   const el = document.getElementById('ramoResults');
-  if (el) el.innerHTML = '<p>Funcionalidade em desenvolvimento</p>';
+
+  if (!cidade || !ramo) {
+    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas reais...</p>';
+
+  try {
+    const empresas = [];
+
+    for (let i = 0; i < 20; i++) {
+      const randomCNPJ = Math.floor(Math.random() * 90000000000000) + 10000000000000;
+
+      const r = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${randomCNPJ}`);
+
+      if (r.ok) {
+        const d = await r.json();
+
+        const atividade = (d.cnae_fiscal_descricao || '').toLowerCase();
+
+        if (
+          d.municipio &&
+          atividade.includes(ramo.toLowerCase()) &&
+          d.municipio.toLowerCase().includes(cidade.toLowerCase())
+        ) {
+          empresas.push(d);
+        }
+      }
+
+      if (empresas.length >= 5) break;
+    }
+
+    if (!empresas.length) {
+      el.innerHTML = '<div class="alert alert-danger">Nenhuma empresa encontrada</div>';
+      return;
+    }
+
+    let html = `<div class="row">`;
+
+    empresas.forEach(emp => {
+      html += `
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5>${emp.razao_social || 'Sem nome'}</h5>
+              <p><strong>CNPJ:</strong> ${emp.cnpj || '—'}</p>
+              <p><strong>Cidade:</strong> ${emp.municipio}/${emp.uf}</p>
+              <p><strong>Situação:</strong> ${emp.descricao_situacao_cadastral || '—'}</p>
+              <p><strong>Atividade:</strong> ${emp.cnae_fiscal_descricao || '—'}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+
+    el.innerHTML = html;
+
+  } catch (e) {
+    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
+  }
 }
 
 // ============= AI CHAT IA =============
@@ -2024,6 +2172,18 @@ Não use markdown (**, ##, etc). Seja conciso mas completo.`
     .catch(() => {
       alert('Erro ao copiar.');
     });
+}
+
+  function toggleDetails(cnpj) {
+  const row = document.getElementById(`details-${cnpj}`);
+
+  if (!row) return;
+
+  if (row.style.display === 'none') {
+    row.style.display = 'table-row';
+  } else {
+    row.style.display = 'none';
+  }
 }
 
 </script>
