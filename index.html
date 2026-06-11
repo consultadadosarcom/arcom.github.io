@@ -1311,7 +1311,21 @@ async function consultarOpenCNPJ(cnpj) {
 }
 
 function parseCNPJs(text) {
-  return [...new Set(text.match(/\d{14}|\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/g) || [])].map(norm);
+  const lista = text.match(/\d{13,14}|\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/g) || [];
+
+  return [...new Set(
+    lista.map(cnpj => {
+      cnpj = cnpj.replace(/\D/g, '');
+
+      // Se tiver 13 dígitos, adiciona 0 à esquerda
+      if (cnpj.length === 13) {
+        cnpj = '0' + cnpj;
+      }
+
+      return cnpj;
+    })
+  )];
+}
 }
 
 function updateStats(t, b, i, s) {
