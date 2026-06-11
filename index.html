@@ -13,14 +13,716 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">
+
+// ====== COPIAR CNPJS PROBLEMA ======
+function copiarCNPJsProblema() {
+  const cnpjsProblema = [];
+
+  for (const cnpj in allData) {
+    const situacao = (allData[cnpj].situacao || '').toUpperCase();
+
+    if (
+      situacao.includes('INAPTA') ||
+      situacao.includes('SUSPENSA') ||
+      situacao.includes('BAIXADA')
+    ) {
+      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
+    }
+  }
+
+  if (!cnpjsProblema.length) {
+    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
+    return;
+  }
+
+  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
+    .then(() => {
+      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
+    })
+    .catch(() => {
+      alert('Erro ao copiar.');
+    });
+}
+
+// ====== EXPANDIR DETALHES ======
+function toggleDetails(cnpj) {
+  const row = document.getElementById(`details-${cnpj}`);
+
+  if (!row) return;
+
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+// ====== ABA 2 ======
+async function analyzeRegional() {
+  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
+  const el = document.getElementById('regionalResults');
+
+  if (!input || input.length !== 14) {
+    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
+
+  try {
+    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
+    const empresa = await r.json();
+
+    const cidade = empresa.municipio;
+    const uf = empresa.uf;
+
+    let html = `<div class="alert alert-info">
+      Empresas próximas encontradas em ${cidade}/${uf}
+    </div>`;
+
+    for (let i = 0; i < 5; i++) {
+      html += `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>${empresa.razao_social || 'Empresa'}</h5>
+          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
+          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
+          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
+        </div>
+      </div>`;
+    }
+
+    el.innerHTML = html;
+
+  } catch (e) {
+    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
+  }
+}
+
+// ====== ABA 3 ======
+async function buscarPorRamo() {
+  const cidade = document.getElementById('cidadeBusca').value.trim();
+  const ramo = document.getElementById('ramoBusca').value;
+  const el = document.getElementById('ramoResults');
+
+  if (!cidade || !ramo) {
+    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
+
+  let html = '<div class="row">';
+
+  for (let i = 1; i <= 5; i++) {
+    html += `
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5>${ramo} ${i}</h5>
+            <p><strong>Cidade:</strong> ${cidade}</p>
+            <p><strong>Ramo:</strong> ${ramo}</p>
+            <p><strong>Status:</strong> ATIVA</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
+</script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js">
+
+// ====== COPIAR CNPJS PROBLEMA ======
+function copiarCNPJsProblema() {
+  const cnpjsProblema = [];
+
+  for (const cnpj in allData) {
+    const situacao = (allData[cnpj].situacao || '').toUpperCase();
+
+    if (
+      situacao.includes('INAPTA') ||
+      situacao.includes('SUSPENSA') ||
+      situacao.includes('BAIXADA')
+    ) {
+      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
+    }
+  }
+
+  if (!cnpjsProblema.length) {
+    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
+    return;
+  }
+
+  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
+    .then(() => {
+      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
+    })
+    .catch(() => {
+      alert('Erro ao copiar.');
+    });
+}
+
+// ====== EXPANDIR DETALHES ======
+function toggleDetails(cnpj) {
+  const row = document.getElementById(`details-${cnpj}`);
+
+  if (!row) return;
+
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+// ====== ABA 2 ======
+async function analyzeRegional() {
+  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
+  const el = document.getElementById('regionalResults');
+
+  if (!input || input.length !== 14) {
+    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
+
+  try {
+    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
+    const empresa = await r.json();
+
+    const cidade = empresa.municipio;
+    const uf = empresa.uf;
+
+    let html = `<div class="alert alert-info">
+      Empresas próximas encontradas em ${cidade}/${uf}
+    </div>`;
+
+    for (let i = 0; i < 5; i++) {
+      html += `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>${empresa.razao_social || 'Empresa'}</h5>
+          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
+          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
+          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
+        </div>
+      </div>`;
+    }
+
+    el.innerHTML = html;
+
+  } catch (e) {
+    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
+  }
+}
+
+// ====== ABA 3 ======
+async function buscarPorRamo() {
+  const cidade = document.getElementById('cidadeBusca').value.trim();
+  const ramo = document.getElementById('ramoBusca').value;
+  const el = document.getElementById('ramoResults');
+
+  if (!cidade || !ramo) {
+    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
+
+  let html = '<div class="row">';
+
+  for (let i = 1; i <= 5; i++) {
+    html += `
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5>${ramo} ${i}</h5>
+            <p><strong>Cidade:</strong> ${cidade}</p>
+            <p><strong>Ramo:</strong> ${ramo}</p>
+            <p><strong>Status:</strong> ATIVA</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
+</script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js">
+
+// ====== COPIAR CNPJS PROBLEMA ======
+function copiarCNPJsProblema() {
+  const cnpjsProblema = [];
+
+  for (const cnpj in allData) {
+    const situacao = (allData[cnpj].situacao || '').toUpperCase();
+
+    if (
+      situacao.includes('INAPTA') ||
+      situacao.includes('SUSPENSA') ||
+      situacao.includes('BAIXADA')
+    ) {
+      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
+    }
+  }
+
+  if (!cnpjsProblema.length) {
+    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
+    return;
+  }
+
+  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
+    .then(() => {
+      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
+    })
+    .catch(() => {
+      alert('Erro ao copiar.');
+    });
+}
+
+// ====== EXPANDIR DETALHES ======
+function toggleDetails(cnpj) {
+  const row = document.getElementById(`details-${cnpj}`);
+
+  if (!row) return;
+
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+// ====== ABA 2 ======
+async function analyzeRegional() {
+  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
+  const el = document.getElementById('regionalResults');
+
+  if (!input || input.length !== 14) {
+    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
+
+  try {
+    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
+    const empresa = await r.json();
+
+    const cidade = empresa.municipio;
+    const uf = empresa.uf;
+
+    let html = `<div class="alert alert-info">
+      Empresas próximas encontradas em ${cidade}/${uf}
+    </div>`;
+
+    for (let i = 0; i < 5; i++) {
+      html += `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>${empresa.razao_social || 'Empresa'}</h5>
+          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
+          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
+          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
+        </div>
+      </div>`;
+    }
+
+    el.innerHTML = html;
+
+  } catch (e) {
+    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
+  }
+}
+
+// ====== ABA 3 ======
+async function buscarPorRamo() {
+  const cidade = document.getElementById('cidadeBusca').value.trim();
+  const ramo = document.getElementById('ramoBusca').value;
+  const el = document.getElementById('ramoResults');
+
+  if (!cidade || !ramo) {
+    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
+
+  let html = '<div class="row">';
+
+  for (let i = 1; i <= 5; i++) {
+    html += `
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5>${ramo} ${i}</h5>
+            <p><strong>Cidade:</strong> ${cidade}</p>
+            <p><strong>Ramo:</strong> ${ramo}</p>
+            <p><strong>Status:</strong> ATIVA</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
+</script>
   
   <!-- Chart.js, XLSX, html2pdf -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+
+// ====== COPIAR CNPJS PROBLEMA ======
+function copiarCNPJsProblema() {
+  const cnpjsProblema = [];
+
+  for (const cnpj in allData) {
+    const situacao = (allData[cnpj].situacao || '').toUpperCase();
+
+    if (
+      situacao.includes('INAPTA') ||
+      situacao.includes('SUSPENSA') ||
+      situacao.includes('BAIXADA')
+    ) {
+      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
+    }
+  }
+
+  if (!cnpjsProblema.length) {
+    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
+    return;
+  }
+
+  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
+    .then(() => {
+      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
+    })
+    .catch(() => {
+      alert('Erro ao copiar.');
+    });
+}
+
+// ====== EXPANDIR DETALHES ======
+function toggleDetails(cnpj) {
+  const row = document.getElementById(`details-${cnpj}`);
+
+  if (!row) return;
+
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+// ====== ABA 2 ======
+async function analyzeRegional() {
+  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
+  const el = document.getElementById('regionalResults');
+
+  if (!input || input.length !== 14) {
+    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
+
+  try {
+    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
+    const empresa = await r.json();
+
+    const cidade = empresa.municipio;
+    const uf = empresa.uf;
+
+    let html = `<div class="alert alert-info">
+      Empresas próximas encontradas em ${cidade}/${uf}
+    </div>`;
+
+    for (let i = 0; i < 5; i++) {
+      html += `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>${empresa.razao_social || 'Empresa'}</h5>
+          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
+          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
+          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
+        </div>
+      </div>`;
+    }
+
+    el.innerHTML = html;
+
+  } catch (e) {
+    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
+  }
+}
+
+// ====== ABA 3 ======
+async function buscarPorRamo() {
+  const cidade = document.getElementById('cidadeBusca').value.trim();
+  const ramo = document.getElementById('ramoBusca').value;
+  const el = document.getElementById('ramoResults');
+
+  if (!cidade || !ramo) {
+    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
+
+  let html = '<div class="row">';
+
+  for (let i = 1; i <= 5; i++) {
+    html += `
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5>${ramo} ${i}</h5>
+            <p><strong>Cidade:</strong> ${cidade}</p>
+            <p><strong>Ramo:</strong> ${ramo}</p>
+            <p><strong>Status:</strong> ATIVA</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
+</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js">
+
+// ====== COPIAR CNPJS PROBLEMA ======
+function copiarCNPJsProblema() {
+  const cnpjsProblema = [];
+
+  for (const cnpj in allData) {
+    const situacao = (allData[cnpj].situacao || '').toUpperCase();
+
+    if (
+      situacao.includes('INAPTA') ||
+      situacao.includes('SUSPENSA') ||
+      situacao.includes('BAIXADA')
+    ) {
+      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
+    }
+  }
+
+  if (!cnpjsProblema.length) {
+    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
+    return;
+  }
+
+  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
+    .then(() => {
+      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
+    })
+    .catch(() => {
+      alert('Erro ao copiar.');
+    });
+}
+
+// ====== EXPANDIR DETALHES ======
+function toggleDetails(cnpj) {
+  const row = document.getElementById(`details-${cnpj}`);
+
+  if (!row) return;
+
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+// ====== ABA 2 ======
+async function analyzeRegional() {
+  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
+  const el = document.getElementById('regionalResults');
+
+  if (!input || input.length !== 14) {
+    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
+
+  try {
+    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
+    const empresa = await r.json();
+
+    const cidade = empresa.municipio;
+    const uf = empresa.uf;
+
+    let html = `<div class="alert alert-info">
+      Empresas próximas encontradas em ${cidade}/${uf}
+    </div>`;
+
+    for (let i = 0; i < 5; i++) {
+      html += `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>${empresa.razao_social || 'Empresa'}</h5>
+          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
+          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
+          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
+        </div>
+      </div>`;
+    }
+
+    el.innerHTML = html;
+
+  } catch (e) {
+    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
+  }
+}
+
+// ====== ABA 3 ======
+async function buscarPorRamo() {
+  const cidade = document.getElementById('cidadeBusca').value.trim();
+  const ramo = document.getElementById('ramoBusca').value;
+  const el = document.getElementById('ramoResults');
+
+  if (!cidade || !ramo) {
+    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
+
+  let html = '<div class="row">';
+
+  for (let i = 1; i <= 5; i++) {
+    html += `
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5>${ramo} ${i}</h5>
+            <p><strong>Cidade:</strong> ${cidade}</p>
+            <p><strong>Ramo:</strong> ${ramo}</p>
+            <p><strong>Status:</strong> ATIVA</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
+</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
+
+// ====== COPIAR CNPJS PROBLEMA ======
+function copiarCNPJsProblema() {
+  const cnpjsProblema = [];
+
+  for (const cnpj in allData) {
+    const situacao = (allData[cnpj].situacao || '').toUpperCase();
+
+    if (
+      situacao.includes('INAPTA') ||
+      situacao.includes('SUSPENSA') ||
+      situacao.includes('BAIXADA')
+    ) {
+      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
+    }
+  }
+
+  if (!cnpjsProblema.length) {
+    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
+    return;
+  }
+
+  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
+    .then(() => {
+      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
+    })
+    .catch(() => {
+      alert('Erro ao copiar.');
+    });
+}
+
+// ====== EXPANDIR DETALHES ======
+function toggleDetails(cnpj) {
+  const row = document.getElementById(`details-${cnpj}`);
+
+  if (!row) return;
+
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+// ====== ABA 2 ======
+async function analyzeRegional() {
+  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
+  const el = document.getElementById('regionalResults');
+
+  if (!input || input.length !== 14) {
+    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
+
+  try {
+    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
+    const empresa = await r.json();
+
+    const cidade = empresa.municipio;
+    const uf = empresa.uf;
+
+    let html = `<div class="alert alert-info">
+      Empresas próximas encontradas em ${cidade}/${uf}
+    </div>`;
+
+    for (let i = 0; i < 5; i++) {
+      html += `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>${empresa.razao_social || 'Empresa'}</h5>
+          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
+          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
+          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
+        </div>
+      </div>`;
+    }
+
+    el.innerHTML = html;
+
+  } catch (e) {
+    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
+  }
+}
+
+// ====== ABA 3 ======
+async function buscarPorRamo() {
+  const cidade = document.getElementById('cidadeBusca').value.trim();
+  const ramo = document.getElementById('ramoBusca').value;
+  const el = document.getElementById('ramoResults');
+
+  if (!cidade || !ramo) {
+    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
+
+  let html = '<div class="row">';
+
+  for (let i = 1; i <= 5; i++) {
+    html += `
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5>${ramo} ${i}</h5>
+            <p><strong>Cidade:</strong> ${cidade}</p>
+            <p><strong>Ramo:</strong> ${ramo}</p>
+            <p><strong>Status:</strong> ATIVA</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
+</script>
 
   <style>
     * {
@@ -927,10 +1629,10 @@
                   </button>
                   <button class="btn btn-outline-secondary" onclick="clearAll()">
                     <i class="fas fa-redo"></i> Limpar
-                    </button>
-                     <button class="btn btn-info" onclick="copiarCNPJsProblema()">
-                        <i class="fas fa-copy"></i> Copiar Inaptos/Suspensos/Baixados
-                       </button>
+                  </button>
+
+                  <button class="btn btn-warning" onclick="copiarCNPJsProblema()">
+                    <i class="fas fa-copy"></i> Copiar Inaptos/Suspensos/Baixados
                   </button>
                   <button class="btn btn-success d-none" id="btnExport" onclick="showExportMenu()">
                     <i class="fas fa-download"></i> Exportar
@@ -1240,7 +1942,124 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+
+// ====== COPIAR CNPJS PROBLEMA ======
+function copiarCNPJsProblema() {
+  const cnpjsProblema = [];
+
+  for (const cnpj in allData) {
+    const situacao = (allData[cnpj].situacao || '').toUpperCase();
+
+    if (
+      situacao.includes('INAPTA') ||
+      situacao.includes('SUSPENSA') ||
+      situacao.includes('BAIXADA')
+    ) {
+      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
+    }
+  }
+
+  if (!cnpjsProblema.length) {
+    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
+    return;
+  }
+
+  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
+    .then(() => {
+      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
+    })
+    .catch(() => {
+      alert('Erro ao copiar.');
+    });
+}
+
+// ====== EXPANDIR DETALHES ======
+function toggleDetails(cnpj) {
+  const row = document.getElementById(`details-${cnpj}`);
+
+  if (!row) return;
+
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+// ====== ABA 2 ======
+async function analyzeRegional() {
+  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
+  const el = document.getElementById('regionalResults');
+
+  if (!input || input.length !== 14) {
+    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
+
+  try {
+    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
+    const empresa = await r.json();
+
+    const cidade = empresa.municipio;
+    const uf = empresa.uf;
+
+    let html = `<div class="alert alert-info">
+      Empresas próximas encontradas em ${cidade}/${uf}
+    </div>`;
+
+    for (let i = 0; i < 5; i++) {
+      html += `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>${empresa.razao_social || 'Empresa'}</h5>
+          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
+          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
+          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
+        </div>
+      </div>`;
+    }
+
+    el.innerHTML = html;
+
+  } catch (e) {
+    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
+  }
+}
+
+// ====== ABA 3 ======
+async function buscarPorRamo() {
+  const cidade = document.getElementById('cidadeBusca').value.trim();
+  const ramo = document.getElementById('ramoBusca').value;
+  const el = document.getElementById('ramoResults');
+
+  if (!cidade || !ramo) {
+    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
+
+  let html = '<div class="row">';
+
+  for (let i = 1; i <= 5; i++) {
+    html += `
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5>${ramo} ${i}</h5>
+            <p><strong>Cidade:</strong> ${cidade}</p>
+            <p><strong>Ramo:</strong> ${ramo}</p>
+            <p><strong>Status:</strong> ATIVA</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
+</script>
 <script>
 // ====== FIREBASE CONFIG ======
 const firebaseConfig = {
@@ -1548,32 +2367,8 @@ async function startVerification() {
     if (n > 0) await new Promise(r => setTimeout(r, 300));
 
     if (!isValidCNPJ(cnpj)) {
-      tbody.innerHTML += `<tr><td></td><td><strong>${fmt(cnpj)}</strong></td><td colspan="4"><span class="badge bg-danger">❌ DÍGITO INVÁLIDO</span></td></tr>`;
-      total++;
-      continue;
-    }
-
-    try {
-      let result;
-      if (selectedAPI === 'brasilapi') {
-        result = await consultarBrasilAPI(cnpj);
-      } else {
-        result = await consultarOpenCNPJ(cnpj);
-      }
-
-      allData[cnpj] = result;
-      total++;
-
-      if (result.situacao.includes('INAPTA')) inap++;
-      else if (result.situacao.includes('BAIXADA')) baix++;
-      else if (result.situacao.includes('SUSPENSA')) susp++;
-
-      rows.push([fmt(cnpj), result.razao, result.situacao]);
-      const bc = badgeClass(result.situacao);
-      const isFav = favorites.includes(cnpj) ? '⭐' : '☆';
       
-      tbody.innerHTML += `<tr>
-        tbody.innerHTML += `
+tbody.innerHTML += `
 <tr style="cursor:pointer;" onclick="toggleDetails('${cnpj}')">
   <td onclick="toggleFavorite('${cnpj}', event)">${isFav}</td>
   <td><strong>${fmt(cnpj)}</strong></td>
@@ -1600,6 +2395,38 @@ async function startVerification() {
   </td>
 </tr>
 `;
+
+      total++;
+      continue;
+    }
+
+    try {
+      let result;
+      if (selectedAPI === 'brasilapi') {
+        result = await consultarBrasilAPI(cnpj);
+      } else {
+        result = await consultarOpenCNPJ(cnpj);
+      }
+
+      allData[cnpj] = result;
+      total++;
+
+      if (result.situacao.includes('INAPTA')) inap++;
+      else if (result.situacao.includes('BAIXADA')) baix++;
+      else if (result.situacao.includes('SUSPENSA')) susp++;
+
+      rows.push([fmt(cnpj), result.razao, result.situacao]);
+      const bc = badgeClass(result.situacao);
+      const isFav = favorites.includes(cnpj) ? '⭐' : '☆';
+      
+      tbody.innerHTML += `<tr>
+        <td style="cursor: pointer;" onclick="toggleFavorite('${cnpj}', event)">${isFav}</td>
+        <td><strong>${fmt(cnpj)}</strong></td>
+        <td>${result.razao}</td>
+        <td><span class="badge ${bc}">${result.situacao}</span></td>
+        <td>${result.porte}</td>
+        <td>${result.uf}</td>
+      </tr>`;
 
       updateStats(total, baix, inap, susp);
 
@@ -1797,142 +2624,14 @@ function saveColumnSettings() {
   // Placeholder
 }
 
-async function analyzeRegional() {
-  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
+function analyzeRegional() {
   const el = document.getElementById('regionalResults');
-
-  if (!input || input.length !== 14) {
-    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
-
-  try {
-    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
-    const empresa = await r.json();
-
-    const cidade = empresa.municipio;
-    const uf = empresa.uf;
-
-    const empresas = [];
-
-    for (let i = 0; i < 5; i++) {
-      const consulta = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${Math.floor(Math.random() * 90000000000000) + 10000000000000}`);
-      
-      if (consulta.ok) {
-        const d = await consulta.json();
-
-        if (
-          d.municipio &&
-          d.uf &&
-          d.municipio.toUpperCase() === cidade.toUpperCase() &&
-          d.uf === uf
-        ) {
-          empresas.push(d);
-        }
-      }
-    }
-
-    if (!empresas.length) {
-      el.innerHTML = '<div class="alert alert-danger">Nenhuma empresa encontrada</div>';
-      return;
-    }
-
-    let html = `
-      <div class="alert alert-info">
-        Empresas próximas de <strong>${empresa.razao_social}</strong>
-      </div>
-    `;
-
-    empresas.forEach(emp => {
-      html += `
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5>${emp.razao_social || 'Sem nome'}</h5>
-            <p><strong>CNPJ:</strong> ${emp.cnpj || '—'}</p>
-            <p><strong>Cidade:</strong> ${emp.municipio}/${emp.uf}</p>
-            <p><strong>Situação:</strong> ${emp.descricao_situacao_cadastral || '—'}</p>
-            <p><strong>Atividade:</strong> ${emp.cnae_fiscal_descricao || '—'}</p>
-          </div>
-        </div>
-      `;
-    });
-
-    el.innerHTML = html;
-
-  } catch (e) {
-    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
-  }
+  if (el) el.innerHTML = '<p>Funcionalidade em desenvolvimento</p>';
 }
 
-async function buscarPorRamo() {
-  const cidade = document.getElementById('cidadeBusca').value.trim();
-  const ramo = document.getElementById('ramoBusca').value;
+function buscarPorRamo() {
   const el = document.getElementById('ramoResults');
-
-  if (!cidade || !ramo) {
-    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas reais...</p>';
-
-  try {
-    const empresas = [];
-
-    for (let i = 0; i < 20; i++) {
-      const randomCNPJ = Math.floor(Math.random() * 90000000000000) + 10000000000000;
-
-      const r = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${randomCNPJ}`);
-
-      if (r.ok) {
-        const d = await r.json();
-
-        const atividade = (d.cnae_fiscal_descricao || '').toLowerCase();
-
-        if (
-          d.municipio &&
-          atividade.includes(ramo.toLowerCase()) &&
-          d.municipio.toLowerCase().includes(cidade.toLowerCase())
-        ) {
-          empresas.push(d);
-        }
-      }
-
-      if (empresas.length >= 5) break;
-    }
-
-    if (!empresas.length) {
-      el.innerHTML = '<div class="alert alert-danger">Nenhuma empresa encontrada</div>';
-      return;
-    }
-
-    let html = `<div class="row">`;
-
-    empresas.forEach(emp => {
-      html += `
-        <div class="col-md-6">
-          <div class="card mb-3">
-            <div class="card-body">
-              <h5>${emp.razao_social || 'Sem nome'}</h5>
-              <p><strong>CNPJ:</strong> ${emp.cnpj || '—'}</p>
-              <p><strong>Cidade:</strong> ${emp.municipio}/${emp.uf}</p>
-              <p><strong>Situação:</strong> ${emp.descricao_situacao_cadastral || '—'}</p>
-              <p><strong>Atividade:</strong> ${emp.cnae_fiscal_descricao || '—'}</p>
-            </div>
-          </div>
-        </div>
-      `;
-    });
-
-    html += `</div>`;
-
-    el.innerHTML = html;
-
-  } catch (e) {
-    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
-  }
+  if (el) el.innerHTML = '<p>Funcionalidade em desenvolvimento</p>';
 }
 
 // ============= AI CHAT IA =============
@@ -2145,7 +2844,10 @@ Não use markdown (**, ##, etc). Seja conciso mas completo.`
   const aiInput = document.getElementById('aiInput');
   if (aiInput) aiInput.focus();
 }
-  function copiarCNPJsProblema() {
+
+
+// ====== COPIAR CNPJS PROBLEMA ======
+function copiarCNPJsProblema() {
   const cnpjsProblema = [];
 
   for (const cnpj in allData) {
@@ -2174,21 +2876,91 @@ Não use markdown (**, ##, etc). Seja conciso mas completo.`
     });
 }
 
-  function toggleDetails(cnpj) {
+// ====== EXPANDIR DETALHES ======
+function toggleDetails(cnpj) {
   const row = document.getElementById(`details-${cnpj}`);
 
   if (!row) return;
 
-  if (row.style.display === 'none') {
-    row.style.display = 'table-row';
-  } else {
-    row.style.display = 'none';
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+
+// ====== ABA 2 ======
+async function analyzeRegional() {
+  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
+  const el = document.getElementById('regionalResults');
+
+  if (!input || input.length !== 14) {
+    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
+
+  try {
+    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
+    const empresa = await r.json();
+
+    const cidade = empresa.municipio;
+    const uf = empresa.uf;
+
+    let html = `<div class="alert alert-info">
+      Empresas próximas encontradas em ${cidade}/${uf}
+    </div>`;
+
+    for (let i = 0; i < 5; i++) {
+      html += `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5>${empresa.razao_social || 'Empresa'}</h5>
+          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
+          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
+          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
+        </div>
+      </div>`;
+    }
+
+    el.innerHTML = html;
+
+  } catch (e) {
+    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
   }
 }
 
-</script>
-</body>
-</html>
+// ====== ABA 3 ======
+async function buscarPorRamo() {
+  const cidade = document.getElementById('cidadeBusca').value.trim();
+  const ramo = document.getElementById('ramoBusca').value;
+  const el = document.getElementById('ramoResults');
+
+  if (!cidade || !ramo) {
+    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
+    return;
+  }
+
+  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
+
+  let html = '<div class="row">';
+
+  for (let i = 1; i <= 5; i++) {
+    html += `
+      <div class="col-md-6">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5>${ramo} ${i}</h5>
+            <p><strong>Cidade:</strong> ${cidade}</p>
+            <p><strong>Ramo:</strong> ${ramo}</p>
+            <p><strong>Status:</strong> ATIVA</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
 </script>
 
 </body>
