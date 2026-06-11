@@ -2987,5 +2987,3 @@ Melhorias planejadas:
 - Aba 3 com busca real por cidade/ramo
 - Remover dados fictícios e funções duplicadas
 -->
-
-<script>async function verMaisCNPJ(cnpj){const r=await fetch('https://brasilapi.com.br/api/cnpj/v1/'+cnpj.replace(/\D/g,''));const d=await r.json();let m=document.getElementById('vm');if(!m){document.body.insertAdjacentHTML('beforeend',`<div id=vm style="position:fixed;inset:0;background:#0008;display:none;z-index:99999;overflow:auto"><div style="background:#fff;max-width:900px;margin:20px auto;padding:20px"><button onclick="vm.style.display='none'">Fechar</button><div id=vmc></div></div></div>`);m=document.getElementById('vm');}document.getElementById('vmc').innerHTML='<pre style="white-space:pre-wrap">'+JSON.stringify(d,null,2)+'</pre>';m.style.display='block';}</script>
