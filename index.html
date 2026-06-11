@@ -2377,10 +2377,11 @@ tbody.innerHTML += `
   <td><span class="badge ${bc}">${result.situacao}</span></td>
   <td>${result.porte}</td>
   <td>${result.uf}</td>
+<td><button class="btn" onclick="event.stopPropagation();toggleDetails('${cnpj}')">👥 Ver Sócios</button></td>
 </tr>
 
 <tr id="details-${cnpj}" style="display:none; background:#f8fafc;">
-  <td colspan="6">
+  <td colspan="7">
     <div style="padding:15px; line-height:1.8;">
       <strong>📞 Telefone:</strong> ${result.telefone || '—'}<br>
       <strong>📧 Email:</strong> ${result.email || '—'}<br>
