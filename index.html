@@ -1726,6 +1726,13 @@ async function buscarPorRamo() {
                   <tr>
                     <th style="width: 30px;"><i class="fas fa-star"></i></th>
                     <th>CNPJ</th>
+                    <th style="width: 80px;">Ações</th>
+<!-- Em vez de estrela -->
+<td>
+  <button class="btn-detail" onclick="showDetailsModal('${cnpj}')">
+    <i class="fas fa-eye"></i> Ver
+  </button>
+</td>
                     <th>Razão Social</th>
                     <th>Situação</th>
                     <th>Porte</th>
@@ -2877,6 +2884,11 @@ function copiarCNPJsProblema() {
       alert('Erro ao copiar.');
     });
 }
+  function showDetailsModal(cnpj) {
+  const data = allData[cnpj];
+  // Mostra: Telefone, Email, Endereço, CEP, Capital Social, Natureza Jurídica, Atividade, Sócios
+  new bootstrap.Modal(document.getElementById('detailModal')).show();
+}
 
 // ====== EXPANDIR DETALHES ======
 function toggleDetails(cnpj) {
@@ -2979,12 +2991,3 @@ function renderSociosButton(cnpj,qsa){
 </body>
 </html>
 
-<!-- CHATGPT NOTE:
-Integrar CNPJA API:
-const CNPJA_API_KEY = "305562c0-177c-4a53-a3de-feb603a42584-a41bb6b9-7a3a-4357-990a-61d3a28c815a";
-Melhorias planejadas:
-- Botão Ver Mais com telefone/email/endereço
-- Aba 2 com dados reais via API
-- Aba 3 com busca real por cidade/ramo
-- Remover dados fictícios e funções duplicadas
--->
