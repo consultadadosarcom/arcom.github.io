@@ -441,6 +441,294 @@
       border-top-color: #334155;
     }
 
+    /* ===== AI CHAT ===== */
+    .ai-suggestion {
+      background: #fff;
+      border: 1.5px solid #d0d8e8;
+      color: #0066ff;
+      border-radius: 20px;
+      padding: 5px 11px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .ai-suggestion:hover {
+      background: #0066ff;
+      color: #fff;
+      border-color: #0066ff;
+    }
+
+    .ai-msg-user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #0066ff, #0052cc);
+      color: #fff;
+      border-radius: 14px 14px 4px 14px;
+      padding: 10px 14px;
+      font-size: 12px;
+      max-width: 80%;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .ai-msg-bot {
+      align-self: flex-start;
+      background: #fff;
+      color: #334155;
+      border-radius: 14px 14px 14px 4px;
+      border: 1px solid #e2e8f0;
+      padding: 10px 14px;
+      font-size: 12px;
+      max-width: 85%;
+      line-height: 1.6;
+      word-break: break-word;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .ai-msg-bot strong {
+      color: #0066ff;
+    }
+
+    body.dark-mode .ai-msg-bot {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-color: #334155;
+    }
+
+    .ai-typing {
+      align-self: flex-start;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px 14px 14px 4px;
+      padding: 12px 16px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .ai-typing span {
+      width: 7px;
+      height: 7px;
+      background: #0066ff;
+      border-radius: 50%;
+      animation: aiDot 1.2s infinite;
+      opacity: 0.4;
+    }
+
+    .ai-typing span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .ai-typing span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes aiDot {
+      0%, 80%, 100% {
+        opacity: 0.4;
+        transform: scale(1);
+      }
+      40% {
+        opacity: 1;
+        transform: scale(1.3);
+      }
+    }
+
+    #aiChatBtn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #0066ff, #0052cc);
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 9000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 102, 255, 0.5);
+      transition: transform 0.2s, box-shadow 0.2s;
+      user-select: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+    }
+
+    #aiChatBtn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 25px rgba(0, 102, 255, 0.6);
+    }
+
+    #aiChatWindow {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      width: 380px;
+      height: 540px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+      display: none;
+      flex-direction: column;
+      z-index: 8999;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+
+    body.dark-mode #aiChatWindow {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    .ai-header {
+      background: linear-gradient(135deg, #0066ff, #0052cc);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: white;
+    }
+
+    .ai-header-icon {
+      width: 38px;
+      height: 38px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 20px;
+    }
+
+    .ai-header-title {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .ai-header-status {
+      color: #90caf9;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ai-header-buttons {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .ai-header-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .ai-header-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    #aiMessages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8fafc;
+    }
+
+    body.dark-mode #aiMessages {
+      background: #0f172a;
+    }
+
+    #aiSuggestions {
+      padding: 8px 12px;
+      background: #f0f3f7;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    body.dark-mode #aiSuggestions {
+      background: #1e293b;
+      border-top-color: #334155;
+    }
+
+    .ai-input-area {
+      padding: 12px;
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    body.dark-mode .ai-input-area {
+      background: #1e293b;
+      border-top-color: #334155;
+    }
+
+    #aiInput {
+      flex: 1;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      resize: none;
+      height: 42px;
+      max-height: 100px;
+      line-height: 1.4;
+      color: #334155;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    body.dark-mode #aiInput {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-color: #334155;
+    }
+
+    #aiInput:focus {
+      border-color: #0066ff;
+    }
+
+    #aiSendBtn {
+      background: linear-gradient(135deg, #0066ff, #0052cc);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      width: 42px;
+      height: 42px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: opacity 0.2s;
+    }
+
+    #aiSendBtn:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .hero-section h1 {
@@ -459,6 +747,14 @@
         width: 32px;
         height: 32px;
         font-size: 14px;
+      }
+
+      #aiChatWindow {
+        width: 90vw;
+        height: 70vh;
+        max-width: 380px;
+        bottom: 80px;
+        right: 10px;
       }
     }
   </style>
@@ -644,22 +940,28 @@
               <div class="card-body">
                 <h5 class="card-title"><i class="fas fa-chart-bar"></i> Estatísticas</h5>
                 <div class="row g-3">
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <div class="stat-mini">
                       <div class="stat-value" id="statTotal">0</div>
                       <div class="stat-label">Total</div>
                     </div>
                   </div>
-                  <div class="col-md-4">
-                    <div class="stat-mini stat-success">
-                      <div class="stat-value" id="statOk">0</div>
-                      <div class="stat-label">Ativas</div>
+                  <div class="col-md-3">
+                    <div class="stat-mini stat-danger">
+                      <div class="stat-value" id="statBaixada">0</div>
+                      <div class="stat-label">Baixadas</div>
                     </div>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <div class="stat-mini stat-warning">
                       <div class="stat-value" id="statInapta">0</div>
                       <div class="stat-label">Inaptas</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="stat-mini stat-info">
+                      <div class="stat-value" id="statSuspensa">0</div>
+                      <div class="stat-label">Suspensas</div>
                     </div>
                   </div>
                 </div>
@@ -768,6 +1070,41 @@
       </p>
     </div>
   </footer>
+</div>
+
+<!-- ===== AI CHAT FLUTUANTE ===== -->
+<button id="aiChatBtn" onclick="toggleAIChat()" title="Assistente IA">
+  <i class="fas fa-comments"></i>
+</button>
+
+<div id="aiChatWindow">
+  <div class="ai-header">
+    <div class="ai-header-icon">💬</div>
+    <div style="flex:1">
+      <div class="ai-header-title">Assistente IA</div>
+      <div class="ai-header-status">
+        <span style="width:7px;height:7px;background:#27ae60;border-radius:50%;display:inline-block"></span>
+        Online
+      </div>
+    </div>
+    <div class="ai-header-buttons">
+      <button class="ai-header-btn" onclick="clearAIChat()" title="Limpar conversa">🗑</button>
+      <button class="ai-header-btn" onclick="toggleAIChat()">×</button>
+    </div>
+  </div>
+
+  <div id="aiMessages"></div>
+
+  <div id="aiSuggestions">
+    <button class="ai-suggestion" onclick="sendAISuggestion(this)">Analisar CNPJ</button>
+    <button class="ai-suggestion" onclick="sendAISuggestion(this)">O que é INAPTA?</button>
+    <button class="ai-suggestion" onclick="sendAISuggestion(this)">Como funciona?</button>
+  </div>
+
+  <div class="ai-input-area">
+    <textarea id="aiInput" placeholder="Pergunte sobre CNPJs, empresas, tributação..." onkeydown="handleAIKey(event)"></textarea>
+    <button id="aiSendBtn" onclick="sendAIMessage()">➤</button>
+  </div>
 </div>
 
 <!-- ===== MODALS ===== -->
@@ -896,6 +1233,11 @@ let currentRole = 'viewer';
 let currentTeamId = null;
 const COD_SIT = { '01': 'NULA', '02': 'ATIVA', '03': 'SUSPENSA', '04': 'INAPTA', '08': 'BAIXADA' };
 
+// ====== AI CHAT VARS ======
+let aiChatOpen = false;
+let aiHistory = [];
+let aiGreeted = false;
+
 // ====== AUTH ======
 function showLogin() {
   document.getElementById('loginForm').style.display = 'block';
@@ -921,6 +1263,7 @@ function login() {
       document.getElementById('authScreen').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
       loadUserData();
+      showAIButton();
     })
     .catch(e => showError(e.message));
 }
@@ -963,6 +1306,7 @@ function loginGoogle() {
       document.getElementById('authScreen').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
       loadUserData();
+      showAIButton();
     })
     .catch(e => showError('Erro: ' + e.message));
 }
@@ -973,19 +1317,25 @@ function logout() {
     document.getElementById('authScreen').style.display = 'flex';
     showLogin();
     clearAll();
+    hideAIButton();
   });
 }
 
 function showError(msg) {
   const el = document.getElementById('errorMsg');
-  el.textContent = msg;
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 4000);
+  if (el) {
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 4000);
+  }
 }
 
 async function loadUserData() {
   currentUser = auth.currentUser;
-  document.getElementById('userDisplay').textContent = `👤 ${currentUser.displayName || currentUser.email}`;
+  const userDisplay = document.getElementById('userDisplay');
+  if (userDisplay) {
+    userDisplay.textContent = `👤 ${currentUser.displayName || currentUser.email}`;
+  }
 
   try {
     const userDoc = await db.collection('usuarios').doc(currentUser.uid).get();
@@ -1006,9 +1356,11 @@ auth.onAuthStateChanged(user => {
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
     loadUserData();
+    showAIButton();
   } else {
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('mainApp').style.display = 'none';
+    hideAIButton();
   }
 });
 
@@ -1111,12 +1463,16 @@ function parseCNPJs(text) {
   return [...new Set(text.match(/\d{14}|\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/g) || [])].map(norm);
 }
 
-function updateStats(t, i, b, s, o) {
-  document.getElementById('statTotal').textContent = t;
-  document.getElementById('statInapta').textContent = i;
-  document.getElementById('statBaixada').textContent = b;
-  document.getElementById('statSuspensa').textContent = s;
-  document.getElementById('statOk').textContent = o;
+function updateStats(t, b, i, s) {
+  const statTotal = document.getElementById('statTotal');
+  const statBaixada = document.getElementById('statBaixada');
+  const statInapta = document.getElementById('statInapta');
+  const statSuspensa = document.getElementById('statSuspensa');
+  
+  if (statTotal) statTotal.textContent = t;
+  if (statBaixada) statBaixada.textContent = b;
+  if (statInapta) statInapta.textContent = i;
+  if (statSuspensa) statSuspensa.textContent = s;
 }
 
 function badgeClass(sit) {
@@ -1128,28 +1484,34 @@ function badgeClass(sit) {
 }
 
 async function startVerification() {
-  document.getElementById('tbody').innerHTML = '';
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
   rows = [];
   allData = {};
   const list = parseCNPJs(document.getElementById('input').value);
   
   if (!list.length) {
-    document.getElementById('status').textContent = '⚠ Nenhum CNPJ encontrado';
+    const status = document.getElementById('status');
+    if (status) status.textContent = '⚠ Nenhum CNPJ encontrado';
     return;
   }
 
-  let total = 0, inap = 0, baix = 0, susp = 0, ok = 0;
+  let total = 0, baix = 0, inap = 0, susp = 0;
 
   for (let n = 0; n < list.length; n++) {
     const cnpj = list[n];
-    document.getElementById('status').textContent = `⏳ Consultando ${fmt(cnpj)} (${n + 1}/${list.length})`;
-    document.getElementById('barFill').style.width = ((n / list.length) * 100) + '%';
-    document.getElementById('percentage').textContent = Math.round((n / list.length) * 100) + '%';
+    const status = document.getElementById('status');
+    const barFill = document.getElementById('barFill');
+    const percentage = document.getElementById('percentage');
+    
+    if (status) status.textContent = `⏳ Consultando ${fmt(cnpj)} (${n + 1}/${list.length})`;
+    if (barFill) barFill.style.width = ((n / list.length) * 100) + '%';
+    if (percentage) percentage.textContent = Math.round((n / list.length) * 100) + '%';
 
     if (n > 0) await new Promise(r => setTimeout(r, 300));
 
     if (!isValidCNPJ(cnpj)) {
-      document.getElementById('tbody').innerHTML += `<tr><td></td><td><strong>${fmt(cnpj)}</strong></td><td colspan="4"><span class="badge bg-danger">❌ DÍGITO INVÁLIDO</span></td></tr>`;
+      tbody.innerHTML += `<tr><td></td><td><strong>${fmt(cnpj)}</strong></td><td colspan="4"><span class="badge bg-danger">❌ DÍGITO INVÁLIDO</span></td></tr>`;
       total++;
       continue;
     }
@@ -1168,13 +1530,12 @@ async function startVerification() {
       if (result.situacao.includes('INAPTA')) inap++;
       else if (result.situacao.includes('BAIXADA')) baix++;
       else if (result.situacao.includes('SUSPENSA')) susp++;
-      else if (result.situacao.includes('ATIVA')) ok++;
 
       rows.push([fmt(cnpj), result.razao, result.situacao]);
       const bc = badgeClass(result.situacao);
       const isFav = favorites.includes(cnpj) ? '⭐' : '☆';
       
-      document.getElementById('tbody').innerHTML += `<tr>
+      tbody.innerHTML += `<tr>
         <td style="cursor: pointer;" onclick="toggleFavorite('${cnpj}', event)">${isFav}</td>
         <td><strong>${fmt(cnpj)}</strong></td>
         <td>${result.razao}</td>
@@ -1183,21 +1544,26 @@ async function startVerification() {
         <td>${result.uf}</td>
       </tr>`;
 
-      updateStats(total, inap, baix, susp, ok);
+      updateStats(total, baix, inap, susp);
 
     } catch (e) {
       console.error('Erro:', cnpj, e);
-      document.getElementById('tbody').innerHTML += `<tr><td></td><td><strong>${fmt(cnpj)}</strong></td><td colspan="4"><span class="badge bg-warning">❌ ${e.message}</span></td></tr>`;
+      tbody.innerHTML += `<tr><td></td><td><strong>${fmt(cnpj)}</strong></td><td colspan="4"><span class="badge bg-warning">❌ ${e.message}</span></td></tr>`;
       total++;
     }
   }
 
-  document.getElementById('barFill').style.width = '100%';
-  document.getElementById('percentage').textContent = '100%';
-  document.getElementById('status').textContent = `✓ Concluído — ${total} CNPJs consultados`;
+  const barFill = document.getElementById('barFill');
+  const percentage = document.getElementById('percentage');
+  const status = document.getElementById('status');
+  
+  if (barFill) barFill.style.width = '100%';
+  if (percentage) percentage.textContent = '100%';
+  if (status) status.textContent = `✓ Concluído — ${total} CNPJs consultados`;
   
   updateChart();
-  document.getElementById('btnExport').style.display = 'inline-block';
+  const btnExport = document.getElementById('btnExport');
+  if (btnExport) btnExport.style.display = 'inline-block';
 
   if (currentUser) {
     loadFirebaseHistory();
@@ -1205,7 +1571,10 @@ async function startVerification() {
 }
 
 function updateChart() {
-  const ctx = document.getElementById('chartSituacao').getContext('2d');
+  const ctx = document.getElementById('chartSituacao');
+  if (!ctx) return;
+  
+  const ctxContext = ctx.getContext('2d');
   const stats = { ATIVA: 0, INAPTA: 0, BAIXADA: 0, SUSPENSA: 0 };
   
   Object.values(allData).forEach(d => {
@@ -1216,7 +1585,7 @@ function updateChart() {
   });
 
   if (chart) chart.destroy();
-  chart = new Chart(ctx, {
+  chart = new Chart(ctxContext, {
     type: 'doughnut',
     data: {
       labels: ['Ativas', 'Inaptas', 'Baixadas', 'Suspensas'],
@@ -1240,21 +1609,20 @@ function toggleFavorite(cnpj, e) {
 }
 
 function clearAll() {
-  document.getElementById('input').value = '';
-  document.getElementById('tbody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-light); padding: 32px;">Nenhuma consulta realizada</td></tr>';
-  document.getElementById('btnExport').style.display = 'none';
-  updateStats(0, 0, 0, 0, 0);
-  document.getElementById('barFill').style.width = '0%';
-  document.getElementById('percentage').textContent = '0%';
-  document.getElementById('status').textContent = 'Aguardando entrada...';
-}
-
-function applyFilters() {
-  // Placeholder para filtros
-}
-
-function clearFilters() {
-  // Placeholder para limpar filtros
+  const input = document.getElementById('input');
+  const tbody = document.getElementById('tbody');
+  const btnExport = document.getElementById('btnExport');
+  const barFill = document.getElementById('barFill');
+  const percentage = document.getElementById('percentage');
+  const status = document.getElementById('status');
+  
+  if (input) input.value = '';
+  if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-light); padding: 32px;">Nenhuma consulta realizada</td></tr>';
+  if (btnExport) btnExport.style.display = 'none';
+  updateStats(0, 0, 0, 0);
+  if (barFill) barFill.style.width = '0%';
+  if (percentage) percentage.textContent = '0%';
+  if (status) status.textContent = 'Aguardando entrada...';
 }
 
 async function loadFirebaseHistory() {
@@ -1274,7 +1642,10 @@ async function loadFirebaseHistory() {
       </p>`;
     });
 
-    document.getElementById('historyContainer').innerHTML = html || '<p style="color: var(--text-light);">Nenhuma consulta</p>';
+    const historyContainer = document.getElementById('historyContainer');
+    if (historyContainer) {
+      historyContainer.innerHTML = html || '<p>Nenhuma consulta</p>';
+    }
   } catch (e) {
     console.error('Erro:', e);
   }
@@ -1369,18 +1740,225 @@ function saveColumnSettings() {
   // Placeholder
 }
 
-// Placeholders para regional e ramo
 function analyzeRegional() {
-  document.getElementById('regionalResults').innerHTML = '<p>Funcionalidade em desenvolvimento</p>';
+  const el = document.getElementById('regionalResults');
+  if (el) el.innerHTML = '<p>Funcionalidade em desenvolvimento</p>';
 }
 
 function buscarPorRamo() {
-  document.getElementById('ramoResults').innerHTML = '<p>Funcionalidade em desenvolvimento</p>';
+  const el = document.getElementById('ramoResults');
+  if (el) el.innerHTML = '<p>Funcionalidade em desenvolvimento</p>';
 }
 
-// Comparação
-function compareAPIs() {
-  showError('✅ Comparação iniciada!');
+// ============= AI CHAT IA =============
+function showAIButton() {
+  const btn = document.getElementById('aiChatBtn');
+  if (btn) btn.style.display = 'flex';
+}
+
+function hideAIButton() {
+  const btn = document.getElementById('aiChatBtn');
+  if (btn) btn.style.display = 'none';
+  closeAIChat();
+}
+
+function toggleAIChat() {
+  aiChatOpen ? closeAIChat() : openAIChat();
+}
+
+function openAIChat() {
+  aiChatOpen = true;
+  const win = document.getElementById('aiChatWindow');
+  if (win) win.style.display = 'flex';
+
+  if (!aiGreeted) {
+    aiGreeted = true;
+    const userName = (currentUser && (currentUser.displayName || currentUser.email)) || 'usuário';
+    const contexto = Object.keys(allData).length
+      ? `O usuário já consultou ${Object.keys(allData).length} CNPJ(s) nesta sessão.`
+      : 'Nenhum CNPJ consultado ainda nesta sessão.';
+
+    appendAIMessage('bot',
+      `Olá, <strong>${userName.split(' ')[0]}</strong>! 👋<br><br>
+       Sou o assistente IA integrado ao <strong>ARCOM SA</strong>.<br>
+       Posso ajudar com:<br>
+       • Interpretação de dados de CNPJ<br>
+       • Dúvidas sobre situação cadastral<br>
+       • Tributação e natureza jurídica<br>
+       • Análise de empresas e mercado<br><br>
+       ${contexto} Como posso ajudar?`
+    );
+
+    aiHistory = [{
+      role: 'user',
+      content: `Contexto do sistema: Sou um assistente integrado ao ARCOM SA, uma ferramenta de consulta de CNPJ. 
+O usuário logado é "${userName}". ${contexto}
+Responda sempre em português brasileiro, de forma objetiva e útil. 
+Para formatação use <strong> para negrito. Não use markdown.`
+    }, {
+      role: 'assistant',
+      content: `Entendido. Estou pronto para ajudar com questões sobre CNPJ, empresas e dados da Receita Federal.`
+    }];
+  }
+
+  setTimeout(() => {
+    const aiInput = document.getElementById('aiInput');
+    if (aiInput) aiInput.focus();
+    scrollAIToBottom();
+  }, 100);
+}
+
+function closeAIChat() {
+  aiChatOpen = false;
+  const win = document.getElementById('aiChatWindow');
+  if (win) win.style.display = 'none';
+}
+
+function clearAIChat() {
+  aiHistory = [];
+  aiGreeted = false;
+  const aiMessages = document.getElementById('aiMessages');
+  if (aiMessages) aiMessages.innerHTML = '';
+  openAIChat();
+}
+
+function appendAIMessage(type, html) {
+  const box = document.getElementById('aiMessages');
+  if (!box) return;
+  
+  const div = document.createElement('div');
+  div.className = type === 'user' ? 'ai-msg-user' : 'ai-msg-bot';
+  div.innerHTML = html;
+  box.appendChild(div);
+  scrollAIToBottom();
+  return div;
+}
+
+function scrollAIToBottom() {
+  const box = document.getElementById('aiMessages');
+  if (box) {
+    box.scrollTop = box.scrollHeight;
+  }
+}
+
+function handleAIKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendAIMessage();
+  }
+  const ta = document.getElementById('aiInput');
+  if (ta) {
+    ta.style.height = '42px';
+    ta.style.height = Math.min(ta.scrollHeight, 100) + 'px';
+  }
+}
+
+function sendAISuggestion(btn) {
+  const input = document.getElementById('aiInput');
+  if (input) {
+    input.value = btn.textContent;
+    sendAIMessage();
+  }
+}
+
+async function sendAIMessage() {
+  const input = document.getElementById('aiInput');
+  const text = input ? input.value.trim() : '';
+  if (!text) return;
+
+  const sendBtn = document.getElementById('aiSendBtn');
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.style.opacity = '0.5';
+  }
+  if (input) input.value = '';
+  if (input) input.style.height = '42px';
+
+  const suggestions = document.getElementById('aiSuggestions');
+  if (suggestions) suggestions.style.display = 'none';
+
+  appendAIMessage('user', text);
+
+  let sessionCtx = '';
+  if (Object.keys(allData).length > 0) {
+    const resumo = Object.entries(allData).slice(0, 5).map(([cnpj, d]) =>
+      `CNPJ ${fmt(cnpj)}: ${d.razao} | ${d.situacao} | ${d.porte} | ${d.uf}`
+    ).join('\n');
+    sessionCtx = `\n\nDados consultados nesta sessão:\n${resumo}`;
+  }
+
+  aiHistory.push({ role: 'user', content: text + sessionCtx });
+
+  const typing = document.createElement('div');
+  typing.className = 'ai-typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  const aiMessages = document.getElementById('aiMessages');
+  if (aiMessages) aiMessages.appendChild(typing);
+  scrollAIToBottom();
+
+  try {
+    const OPENROUTER_KEY = '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';
+
+    const messages = [
+      {
+        role: 'system',
+        content: `Você é um assistente especializado em CNPJ, Receita Federal, tributação e análise empresarial brasileira, integrado ao sistema ARCOM SA.
+Responda sempre em português do Brasil, de forma clara e objetiva.
+Use <strong>texto</strong> para destacar informações importantes.
+Para listas use • no início de cada item com <br> para quebras de linha.
+Não use markdown (**, ##, etc). Seja conciso mas completo.`
+      },
+      ...aiHistory.slice(-12).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }))
+    ];
+
+    const origin = (window.location.origin && window.location.origin !== 'null')
+      ? window.location.origin
+      : 'https://arcomsa.app';
+
+    const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENROUTER_KEY}`,
+        'HTTP-Referer': origin,
+        'X-Title': 'ARCOM SA'
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-oss-120b:free',
+        messages: messages,
+        max_tokens: 1000,
+        temperature: 0.7
+      })
+    });
+
+    if (typing && typing.parentNode) typing.remove();
+
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}));
+      const errMsg = errData?.error?.message || `HTTP ${resp.status}`;
+      throw new Error(errMsg);
+    }
+    const data = await resp.json();
+    const reply = (data.choices[0].message.content || '').trim();
+
+    aiHistory.push({ role: 'assistant', content: reply });
+    appendAIMessage('bot', reply);
+
+  } catch (err) {
+    if (typing && typing.parentNode) typing.remove();
+    console.error('Erro IA:', err);
+    appendAIMessage('bot', `❌ Erro: ${err.message || 'Falha ao conectar'}`);
+  }
+
+  if (sendBtn) {
+    sendBtn.disabled = false;
+    sendBtn.style.opacity = '1';
+  }
+  const aiInput = document.getElementById('aiInput');
+  if (aiInput) aiInput.focus();
 }
 </script>
 
