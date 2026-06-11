@@ -13,716 +13,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">
-
-// ====== COPIAR CNPJS PROBLEMA ======
-function copiarCNPJsProblema() {
-  const cnpjsProblema = [];
-
-  for (const cnpj in allData) {
-    const situacao = (allData[cnpj].situacao || '').toUpperCase();
-
-    if (
-      situacao.includes('INAPTA') ||
-      situacao.includes('SUSPENSA') ||
-      situacao.includes('BAIXADA')
-    ) {
-      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
-    }
-  }
-
-  if (!cnpjsProblema.length) {
-    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
-    return;
-  }
-
-  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
-    .then(() => {
-      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
-    })
-    .catch(() => {
-      alert('Erro ao copiar.');
-    });
-}
-
-// ====== EXPANDIR DETALHES ======
-function toggleDetails(cnpj) {
-  const row = document.getElementById(`details-${cnpj}`);
-
-  if (!row) return;
-
-  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
-}
-
-// ====== ABA 2 ======
-async function analyzeRegional() {
-  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
-  const el = document.getElementById('regionalResults');
-
-  if (!input || input.length !== 14) {
-    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
-
-  try {
-    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
-    const empresa = await r.json();
-
-    const cidade = empresa.municipio;
-    const uf = empresa.uf;
-
-    let html = `<div class="alert alert-info">
-      Empresas próximas encontradas em ${cidade}/${uf}
-    </div>`;
-
-    for (let i = 0; i < 5; i++) {
-      html += `
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>${empresa.razao_social || 'Empresa'}</h5>
-          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
-          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
-          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
-        </div>
-      </div>`;
-    }
-
-    el.innerHTML = html;
-
-  } catch (e) {
-    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
-  }
-}
-
-// ====== ABA 3 ======
-async function buscarPorRamo() {
-  const cidade = document.getElementById('cidadeBusca').value.trim();
-  const ramo = document.getElementById('ramoBusca').value;
-  const el = document.getElementById('ramoResults');
-
-  if (!cidade || !ramo) {
-    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
-
-  let html = '<div class="row">';
-
-  for (let i = 1; i <= 5; i++) {
-    html += `
-      <div class="col-md-6">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5>${ramo} ${i}</h5>
-            <p><strong>Cidade:</strong> ${cidade}</p>
-            <p><strong>Ramo:</strong> ${ramo}</p>
-            <p><strong>Status:</strong> ATIVA</p>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  html += '</div>';
-
-  el.innerHTML = html;
-}
-
-</script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js">
-
-// ====== COPIAR CNPJS PROBLEMA ======
-function copiarCNPJsProblema() {
-  const cnpjsProblema = [];
-
-  for (const cnpj in allData) {
-    const situacao = (allData[cnpj].situacao || '').toUpperCase();
-
-    if (
-      situacao.includes('INAPTA') ||
-      situacao.includes('SUSPENSA') ||
-      situacao.includes('BAIXADA')
-    ) {
-      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
-    }
-  }
-
-  if (!cnpjsProblema.length) {
-    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
-    return;
-  }
-
-  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
-    .then(() => {
-      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
-    })
-    .catch(() => {
-      alert('Erro ao copiar.');
-    });
-}
-
-// ====== EXPANDIR DETALHES ======
-function toggleDetails(cnpj) {
-  const row = document.getElementById(`details-${cnpj}`);
-
-  if (!row) return;
-
-  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
-}
-
-// ====== ABA 2 ======
-async function analyzeRegional() {
-  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
-  const el = document.getElementById('regionalResults');
-
-  if (!input || input.length !== 14) {
-    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
-
-  try {
-    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
-    const empresa = await r.json();
-
-    const cidade = empresa.municipio;
-    const uf = empresa.uf;
-
-    let html = `<div class="alert alert-info">
-      Empresas próximas encontradas em ${cidade}/${uf}
-    </div>`;
-
-    for (let i = 0; i < 5; i++) {
-      html += `
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>${empresa.razao_social || 'Empresa'}</h5>
-          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
-          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
-          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
-        </div>
-      </div>`;
-    }
-
-    el.innerHTML = html;
-
-  } catch (e) {
-    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
-  }
-}
-
-// ====== ABA 3 ======
-async function buscarPorRamo() {
-  const cidade = document.getElementById('cidadeBusca').value.trim();
-  const ramo = document.getElementById('ramoBusca').value;
-  const el = document.getElementById('ramoResults');
-
-  if (!cidade || !ramo) {
-    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
-
-  let html = '<div class="row">';
-
-  for (let i = 1; i <= 5; i++) {
-    html += `
-      <div class="col-md-6">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5>${ramo} ${i}</h5>
-            <p><strong>Cidade:</strong> ${cidade}</p>
-            <p><strong>Ramo:</strong> ${ramo}</p>
-            <p><strong>Status:</strong> ATIVA</p>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  html += '</div>';
-
-  el.innerHTML = html;
-}
-
-</script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js">
-
-// ====== COPIAR CNPJS PROBLEMA ======
-function copiarCNPJsProblema() {
-  const cnpjsProblema = [];
-
-  for (const cnpj in allData) {
-    const situacao = (allData[cnpj].situacao || '').toUpperCase();
-
-    if (
-      situacao.includes('INAPTA') ||
-      situacao.includes('SUSPENSA') ||
-      situacao.includes('BAIXADA')
-    ) {
-      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
-    }
-  }
-
-  if (!cnpjsProblema.length) {
-    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
-    return;
-  }
-
-  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
-    .then(() => {
-      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
-    })
-    .catch(() => {
-      alert('Erro ao copiar.');
-    });
-}
-
-// ====== EXPANDIR DETALHES ======
-function toggleDetails(cnpj) {
-  const row = document.getElementById(`details-${cnpj}`);
-
-  if (!row) return;
-
-  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
-}
-
-// ====== ABA 2 ======
-async function analyzeRegional() {
-  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
-  const el = document.getElementById('regionalResults');
-
-  if (!input || input.length !== 14) {
-    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
-
-  try {
-    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
-    const empresa = await r.json();
-
-    const cidade = empresa.municipio;
-    const uf = empresa.uf;
-
-    let html = `<div class="alert alert-info">
-      Empresas próximas encontradas em ${cidade}/${uf}
-    </div>`;
-
-    for (let i = 0; i < 5; i++) {
-      html += `
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>${empresa.razao_social || 'Empresa'}</h5>
-          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
-          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
-          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
-        </div>
-      </div>`;
-    }
-
-    el.innerHTML = html;
-
-  } catch (e) {
-    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
-  }
-}
-
-// ====== ABA 3 ======
-async function buscarPorRamo() {
-  const cidade = document.getElementById('cidadeBusca').value.trim();
-  const ramo = document.getElementById('ramoBusca').value;
-  const el = document.getElementById('ramoResults');
-
-  if (!cidade || !ramo) {
-    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
-
-  let html = '<div class="row">';
-
-  for (let i = 1; i <= 5; i++) {
-    html += `
-      <div class="col-md-6">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5>${ramo} ${i}</h5>
-            <p><strong>Cidade:</strong> ${cidade}</p>
-            <p><strong>Ramo:</strong> ${ramo}</p>
-            <p><strong>Status:</strong> ATIVA</p>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  html += '</div>';
-
-  el.innerHTML = html;
-}
-
-</script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   
   <!-- Chart.js, XLSX, html2pdf -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js">
-
-// ====== COPIAR CNPJS PROBLEMA ======
-function copiarCNPJsProblema() {
-  const cnpjsProblema = [];
-
-  for (const cnpj in allData) {
-    const situacao = (allData[cnpj].situacao || '').toUpperCase();
-
-    if (
-      situacao.includes('INAPTA') ||
-      situacao.includes('SUSPENSA') ||
-      situacao.includes('BAIXADA')
-    ) {
-      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
-    }
-  }
-
-  if (!cnpjsProblema.length) {
-    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
-    return;
-  }
-
-  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
-    .then(() => {
-      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
-    })
-    .catch(() => {
-      alert('Erro ao copiar.');
-    });
-}
-
-// ====== EXPANDIR DETALHES ======
-function toggleDetails(cnpj) {
-  const row = document.getElementById(`details-${cnpj}`);
-
-  if (!row) return;
-
-  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
-}
-
-// ====== ABA 2 ======
-async function analyzeRegional() {
-  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
-  const el = document.getElementById('regionalResults');
-
-  if (!input || input.length !== 14) {
-    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
-
-  try {
-    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
-    const empresa = await r.json();
-
-    const cidade = empresa.municipio;
-    const uf = empresa.uf;
-
-    let html = `<div class="alert alert-info">
-      Empresas próximas encontradas em ${cidade}/${uf}
-    </div>`;
-
-    for (let i = 0; i < 5; i++) {
-      html += `
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>${empresa.razao_social || 'Empresa'}</h5>
-          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
-          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
-          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
-        </div>
-      </div>`;
-    }
-
-    el.innerHTML = html;
-
-  } catch (e) {
-    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
-  }
-}
-
-// ====== ABA 3 ======
-async function buscarPorRamo() {
-  const cidade = document.getElementById('cidadeBusca').value.trim();
-  const ramo = document.getElementById('ramoBusca').value;
-  const el = document.getElementById('ramoResults');
-
-  if (!cidade || !ramo) {
-    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
-
-  let html = '<div class="row">';
-
-  for (let i = 1; i <= 5; i++) {
-    html += `
-      <div class="col-md-6">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5>${ramo} ${i}</h5>
-            <p><strong>Cidade:</strong> ${cidade}</p>
-            <p><strong>Ramo:</strong> ${ramo}</p>
-            <p><strong>Status:</strong> ATIVA</p>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  html += '</div>';
-
-  el.innerHTML = html;
-}
-
-</script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js">
-
-// ====== COPIAR CNPJS PROBLEMA ======
-function copiarCNPJsProblema() {
-  const cnpjsProblema = [];
-
-  for (const cnpj in allData) {
-    const situacao = (allData[cnpj].situacao || '').toUpperCase();
-
-    if (
-      situacao.includes('INAPTA') ||
-      situacao.includes('SUSPENSA') ||
-      situacao.includes('BAIXADA')
-    ) {
-      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
-    }
-  }
-
-  if (!cnpjsProblema.length) {
-    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
-    return;
-  }
-
-  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
-    .then(() => {
-      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
-    })
-    .catch(() => {
-      alert('Erro ao copiar.');
-    });
-}
-
-// ====== EXPANDIR DETALHES ======
-function toggleDetails(cnpj) {
-  const row = document.getElementById(`details-${cnpj}`);
-
-  if (!row) return;
-
-  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
-}
-
-// ====== ABA 2 ======
-async function analyzeRegional() {
-  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
-  const el = document.getElementById('regionalResults');
-
-  if (!input || input.length !== 14) {
-    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
-
-  try {
-    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
-    const empresa = await r.json();
-
-    const cidade = empresa.municipio;
-    const uf = empresa.uf;
-
-    let html = `<div class="alert alert-info">
-      Empresas próximas encontradas em ${cidade}/${uf}
-    </div>`;
-
-    for (let i = 0; i < 5; i++) {
-      html += `
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>${empresa.razao_social || 'Empresa'}</h5>
-          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
-          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
-          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
-        </div>
-      </div>`;
-    }
-
-    el.innerHTML = html;
-
-  } catch (e) {
-    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
-  }
-}
-
-// ====== ABA 3 ======
-async function buscarPorRamo() {
-  const cidade = document.getElementById('cidadeBusca').value.trim();
-  const ramo = document.getElementById('ramoBusca').value;
-  const el = document.getElementById('ramoResults');
-
-  if (!cidade || !ramo) {
-    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
-
-  let html = '<div class="row">';
-
-  for (let i = 1; i <= 5; i++) {
-    html += `
-      <div class="col-md-6">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5>${ramo} ${i}</h5>
-            <p><strong>Cidade:</strong> ${cidade}</p>
-            <p><strong>Ramo:</strong> ${ramo}</p>
-            <p><strong>Status:</strong> ATIVA</p>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  html += '</div>';
-
-  el.innerHTML = html;
-}
-
-</script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
-
-// ====== COPIAR CNPJS PROBLEMA ======
-function copiarCNPJsProblema() {
-  const cnpjsProblema = [];
-
-  for (const cnpj in allData) {
-    const situacao = (allData[cnpj].situacao || '').toUpperCase();
-
-    if (
-      situacao.includes('INAPTA') ||
-      situacao.includes('SUSPENSA') ||
-      situacao.includes('BAIXADA')
-    ) {
-      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
-    }
-  }
-
-  if (!cnpjsProblema.length) {
-    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
-    return;
-  }
-
-  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
-    .then(() => {
-      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
-    })
-    .catch(() => {
-      alert('Erro ao copiar.');
-    });
-}
-
-// ====== EXPANDIR DETALHES ======
-function toggleDetails(cnpj) {
-  const row = document.getElementById(`details-${cnpj}`);
-
-  if (!row) return;
-
-  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
-}
-
-// ====== ABA 2 ======
-async function analyzeRegional() {
-  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
-  const el = document.getElementById('regionalResults');
-
-  if (!input || input.length !== 14) {
-    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
-
-  try {
-    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
-    const empresa = await r.json();
-
-    const cidade = empresa.municipio;
-    const uf = empresa.uf;
-
-    let html = `<div class="alert alert-info">
-      Empresas próximas encontradas em ${cidade}/${uf}
-    </div>`;
-
-    for (let i = 0; i < 5; i++) {
-      html += `
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>${empresa.razao_social || 'Empresa'}</h5>
-          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
-          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
-          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
-        </div>
-      </div>`;
-    }
-
-    el.innerHTML = html;
-
-  } catch (e) {
-    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
-  }
-}
-
-// ====== ABA 3 ======
-async function buscarPorRamo() {
-  const cidade = document.getElementById('cidadeBusca').value.trim();
-  const ramo = document.getElementById('ramoBusca').value;
-  const el = document.getElementById('ramoResults');
-
-  if (!cidade || !ramo) {
-    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
-
-  let html = '<div class="row">';
-
-  for (let i = 1; i <= 5; i++) {
-    html += `
-      <div class="col-md-6">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5>${ramo} ${i}</h5>
-            <p><strong>Cidade:</strong> ${cidade}</p>
-            <p><strong>Ramo:</strong> ${ramo}</p>
-            <p><strong>Status:</strong> ATIVA</p>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  html += '</div>';
-
-  el.innerHTML = html;
-}
-
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
     * {
@@ -815,7 +113,7 @@ async function buscarPorRamo() {
       margin-bottom: 30px;
     }
 
-    .form-control {
+    .form-control, .form-select {
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 12px 14px;
@@ -823,7 +121,7 @@ async function buscarPorRamo() {
       transition: all 0.3s;
     }
 
-    .form-control:focus {
+    .form-control:focus, .form-select:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
     }
@@ -1120,6 +418,10 @@ async function buscarPorRamo() {
       background: #1e293b;
     }
 
+    .table tbody tr.expandable-row {
+      cursor: pointer;
+    }
+
     /* ===== MODAL ===== */
     .modal-content {
       border: 1px solid var(--border);
@@ -1129,6 +431,56 @@ async function buscarPorRamo() {
     body.dark-mode .modal-content {
       background: #1e293b;
       border-color: #334155;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid var(--border);
+    }
+
+    body.dark-mode .modal-header {
+      border-bottom-color: #334155;
+    }
+
+    /* ===== DETAIL BUTTON ===== */
+    .btn-detail {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-detail:hover {
+      background: var(--primary-dark);
+      transform: scale(1.05);
+    }
+
+    /* ===== SOCIO CARD ===== */
+    .socio-card {
+      background: var(--light);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border-left: 3px solid var(--primary);
+    }
+
+    body.dark-mode .socio-card {
+      background: #0f172a;
+    }
+
+    .socio-card strong {
+      display: block;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .socio-card small {
+      display: block;
+      color: var(--text-light);
+      font-size: 12px;
     }
 
     /* ===== FOOTER ===== */
@@ -1169,294 +521,6 @@ async function buscarPorRamo() {
       background: rgba(0, 102, 255, 0.1);
     }
 
-    /* ===== AI CHAT ===== */
-    .ai-suggestion {
-      background: #fff;
-      border: 1.5px solid #d0d8e8;
-      color: #0066ff;
-      border-radius: 20px;
-      padding: 5px 11px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.2s;
-    }
-
-    .ai-suggestion:hover {
-      background: #0066ff;
-      color: #fff;
-      border-color: #0066ff;
-    }
-
-    .ai-msg-user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, #0066ff, #0052cc);
-      color: #fff;
-      border-radius: 14px 14px 4px 14px;
-      padding: 10px 14px;
-      font-size: 12px;
-      max-width: 80%;
-      line-height: 1.5;
-      word-break: break-word;
-    }
-
-    .ai-msg-bot {
-      align-self: flex-start;
-      background: #fff;
-      color: #334155;
-      border-radius: 14px 14px 14px 4px;
-      border: 1px solid #e2e8f0;
-      padding: 10px 14px;
-      font-size: 12px;
-      max-width: 85%;
-      line-height: 1.6;
-      word-break: break-word;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-    }
-
-    .ai-msg-bot strong {
-      color: #0066ff;
-    }
-
-    body.dark-mode .ai-msg-bot {
-      background: #1e293b;
-      color: #e2e8f0;
-      border-color: #334155;
-    }
-
-    .ai-typing {
-      align-self: flex-start;
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px 14px 14px 4px;
-      padding: 12px 16px;
-      display: flex;
-      gap: 5px;
-      align-items: center;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-    }
-
-    .ai-typing span {
-      width: 7px;
-      height: 7px;
-      background: #0066ff;
-      border-radius: 50%;
-      animation: aiDot 1.2s infinite;
-      opacity: 0.4;
-    }
-
-    .ai-typing span:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-
-    .ai-typing span:nth-child(3) {
-      animation-delay: 0.4s;
-    }
-
-    @keyframes aiDot {
-      0%, 80%, 100% {
-        opacity: 0.4;
-        transform: scale(1);
-      }
-      40% {
-        opacity: 1;
-        transform: scale(1.3);
-      }
-    }
-
-    #aiChatBtn {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, #0066ff, #0052cc);
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 9000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 20px rgba(0, 102, 255, 0.5);
-      transition: transform 0.2s, box-shadow 0.2s;
-      user-select: none;
-      border: none;
-      color: white;
-      font-size: 20px;
-    }
-
-    #aiChatBtn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 25px rgba(0, 102, 255, 0.6);
-    }
-
-    #aiChatWindow {
-      position: fixed;
-      bottom: 100px;
-      right: 30px;
-      width: 380px;
-      height: 540px;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
-      display: none;
-      flex-direction: column;
-      z-index: 8999;
-      overflow: hidden;
-      border: 1px solid #e2e8f0;
-    }
-
-    body.dark-mode #aiChatWindow {
-      background: #1e293b;
-      border-color: #334155;
-    }
-
-    .ai-header {
-      background: linear-gradient(135deg, #0066ff, #0052cc);
-      padding: 16px 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: white;
-    }
-
-    .ai-header-icon {
-      width: 38px;
-      height: 38px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-size: 20px;
-    }
-
-    .ai-header-title {
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .ai-header-status {
-      color: #90caf9;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .ai-header-buttons {
-      display: flex;
-      gap: 8px;
-      margin-left: auto;
-    }
-
-    .ai-header-btn {
-      background: rgba(255, 255, 255, 0.15);
-      border: none;
-      color: #fff;
-      width: 30px;
-      height: 30px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .ai-header-btn:hover {
-      background: rgba(255, 255, 255, 0.25);
-    }
-
-    #aiMessages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      background: #f8fafc;
-    }
-
-    body.dark-mode #aiMessages {
-      background: #0f172a;
-    }
-
-    #aiSuggestions {
-      padding: 8px 12px;
-      background: #f0f3f7;
-      border-top: 1px solid #e2e8f0;
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    body.dark-mode #aiSuggestions {
-      background: #1e293b;
-      border-top-color: #334155;
-    }
-
-    .ai-input-area {
-      padding: 12px;
-      border-top: 1px solid #e2e8f0;
-      background: #fff;
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-    }
-
-    body.dark-mode .ai-input-area {
-      background: #1e293b;
-      border-top-color: #334155;
-    }
-
-    #aiInput {
-      flex: 1;
-      border: 2px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-family: 'Inter', sans-serif;
-      font-size: 12px;
-      resize: none;
-      height: 42px;
-      max-height: 100px;
-      line-height: 1.4;
-      color: #334155;
-      background: #fff;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    body.dark-mode #aiInput {
-      background: #0f172a;
-      color: #e2e8f0;
-      border-color: #334155;
-    }
-
-    #aiInput:focus {
-      border-color: #0066ff;
-    }
-
-    #aiSendBtn {
-      background: linear-gradient(135deg, #0066ff, #0052cc);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      width: 42px;
-      height: 42px;
-      cursor: pointer;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      transition: opacity 0.2s;
-    }
-
-    #aiSendBtn:hover:not(:disabled) {
-      opacity: 0.9;
-    }
-
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .hero-section h1 {
@@ -1475,14 +539,6 @@ async function buscarPorRamo() {
         width: 32px;
         height: 32px;
         font-size: 14px;
-      }
-
-      #aiChatWindow {
-        width: 90vw;
-        height: 70vh;
-        max-width: 380px;
-        bottom: 80px;
-        right: 10px;
       }
 
       .footer-signature {
@@ -1538,21 +594,12 @@ async function buscarPorRamo() {
   <nav class="navbar sticky-top">
     <div class="container-fluid px-4">
       <a class="navbar-brand" href="#">
-        <i class="fas fa-search"></i> Tool made by João - ARCOM SA
+        <i class="fas fa-search"></i> ARCOM SA
       </a>
       <div class="nav-buttons">
         <span style="font-size: 14px; color: var(--text-light); margin-right: 8px;" id="userDisplay"></span>
         <button class="nav-btn" onclick="toggleDarkMode()" title="Dark Mode">
           <i class="fas fa-moon"></i>
-        </button>
-        <button class="nav-btn" onclick="openTeamModal()" title="Equipe">
-          <i class="fas fa-users"></i>
-        </button>
-        <button class="nav-btn" onclick="openAuditModal()" title="Auditoria">
-          <i class="fas fa-clipboard-list"></i>
-        </button>
-        <button class="nav-btn" onclick="openSettings()" title="Configurações">
-          <i class="fas fa-cog"></i>
         </button>
         <button class="nav-btn" style="border-color: var(--danger); color: var(--danger);" onclick="logout()" title="Sair">
           <i class="fas fa-sign-out-alt"></i>
@@ -1621,7 +668,7 @@ async function buscarPorRamo() {
             <!-- Input -->
             <div class="card mb-4">
               <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-file-upload"></i> Colocar o CNPJ A Baixo</h5>
+                <h5 class="card-title"><i class="fas fa-file-upload"></i> Adicione CNPJs</h5>
                 <textarea id="input" class="form-control mb-3" placeholder="Cole aqui os CNPJs&#10;Formatos: 12345678000195 ou 12.345.678/0001-95" rows="8"></textarea>
                 <div class="d-grid gap-2">
                   <button class="btn btn-primary" onclick="startVerification()">
@@ -1630,9 +677,8 @@ async function buscarPorRamo() {
                   <button class="btn btn-outline-secondary" onclick="clearAll()">
                     <i class="fas fa-redo"></i> Limpar
                   </button>
-
                   <button class="btn btn-warning" onclick="copiarCNPJsProblema()">
-                    <i class="fas fa-copy"></i> Copiar Inaptos/Suspensos/Baixados
+                    <i class="fas fa-copy"></i> Copiar Inaptos
                   </button>
                   <button class="btn btn-success d-none" id="btnExport" onclick="showExportMenu()">
                     <i class="fas fa-download"></i> Exportar
@@ -1648,9 +694,6 @@ async function buscarPorRamo() {
                 <div id="historyContainer" style="font-size: 12px; color: var(--text-light);">
                   <p>Nenhuma consulta</p>
                 </div>
-                <button class="btn btn-outline-danger btn-sm w-100 mt-3" onclick="clearFirebaseHistory()">
-                  <i class="fas fa-trash"></i> Limpar
-                </button>
               </div>
             </div>
           </div>
@@ -1724,18 +767,17 @@ async function buscarPorRamo() {
               <table class="table">
                 <thead>
                   <tr>
-                    <th style="width: 30px;"><i class="fas fa-star"></i></th>
+                    <th style="width: 80px;">Ações</th>
                     <th>CNPJ</th>
                     <th>Razão Social</th>
                     <th>Situação</th>
                     <th>Porte</th>
                     <th>Estado</th>
-                    <th>Sócios</th>
                   </tr>
                 </thead>
                 <tbody id="tbody">
                   <tr>
-                    <td colspan="7" style="text-align: center; color: var(--text-light); padding: 32px;">
+                    <td colspan="6" style="text-align: center; color: var(--text-light); padding: 32px;">
                       Nenhuma consulta realizada
                     </td>
                   </tr>
@@ -1751,7 +793,7 @@ async function buscarPorRamo() {
         <div class="card">
           <div class="card-body">
             <h5 class="card-title"><i class="fas fa-map-marker-alt"></i> Análise Regional</h5>
-            <p style="color: var(--text-light); margin-bottom: 16px;">Digite um CNPJ para descobrir empresas na região</p>
+            <p style="color: var(--text-light); margin-bottom: 16px;">Digite um CNPJ para descobrir empresas próximas na mesma cidade</p>
             <div class="input-group mb-4">
               <input type="text" id="cnpjRegional" class="form-control" placeholder="Digite o CNPJ" autocomplete="off">
               <button class="btn btn-primary" onclick="analyzeRegional()">
@@ -1768,28 +810,10 @@ async function buscarPorRamo() {
         <div class="card">
           <div class="card-body">
             <h5 class="card-title"><i class="fas fa-store"></i> Buscar por Ramo</h5>
-            <p style="color: var(--text-light); margin-bottom: 16px;">Encontre empresas reais ativas por cidade e ramo</p>
-            <div class="row g-3 mb-4">
-              <div class="col-md-4">
-                <input type="text" id="cidadeBusca" class="form-control" placeholder="Ex: São Paulo" autocomplete="off">
-              </div>
-              <div class="col-md-4">
-                <select id="ramoBusca" class="form-select">
-                  <option value="">Selecione o ramo...</option>
-                  <option value="papelaria">📎 Papelaria</option>
-                  <option value="perfumaria">💐 Perfumaria</option>
-                  <option value="supermercado">🛒 Supermercado</option>
-                  <option value="mercearia">🏪 Mercearia</option>
-                  <option value="farmacia">💊 Farmácia</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <button class="btn btn-primary w-100" onclick="buscarPorRamo()">
-                  <i class="fas fa-search"></i> Buscar
-                </button>
-              </div>
+            <p style="color: var(--text-light); margin-bottom: 16px;">Em desenvolvimento - Busca por CNAE em breve</p>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> Esta funcionalidade está sendo implementada para buscar empresas reais por cidade e atividade (CNAE).
             </div>
-            <div id="ramoResults"></div>
           </div>
         </div>
       </div>
@@ -1806,49 +830,28 @@ async function buscarPorRamo() {
         🚀 Ferramenta/Site Criado por João Lucas
       </div>
       <div class="footer-signature">
-        <i class="fas fa-code"></i> Em desenvolvimento, Bugs ou Erros contatar o João Lucas
+        <i class="fas fa-code"></i> Em desenvolvimento
       </div>
     </div>
   </footer>
 </div>
 
-<!-- ===== AI CHAT FLUTUANTE ===== -->
-<button id="aiChatBtn" onclick="toggleAIChat()" title="Assistente IA">
-  <i class="fas fa-comments"></i>
-</button>
-
-<div id="aiChatWindow">
-  <div class="ai-header">
-    <div class="ai-header-icon">💬</div>
-    <div style="flex:1">
-      <div class="ai-header-title">Assistente IA</div>
-      <div class="ai-header-status">
-        <span style="width:7px;height:7px;background:#27ae60;border-radius:50%;display:inline-block"></span>
-        Online
+<!-- ===== DETAIL MODAL ===== -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-file-alt"></i> Detalhes Completos</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="detailContent"></div>
       </div>
     </div>
-    <div class="ai-header-buttons">
-      <button class="ai-header-btn" onclick="clearAIChat()" title="Limpar conversa">🗑</button>
-      <button class="ai-header-btn" onclick="toggleAIChat()">×</button>
-    </div>
-  </div>
-
-  <div id="aiMessages"></div>
-
-  <div id="aiSuggestions">
-    <button class="ai-suggestion" onclick="sendAISuggestion(this)">Analisar CNPJ</button>
-    <button class="ai-suggestion" onclick="sendAISuggestion(this)">O que é INAPTA?</button>
-    <button class="ai-suggestion" onclick="sendAISuggestion(this)">Como funciona?</button>
-  </div>
-
-  <div class="ai-input-area">
-    <textarea id="aiInput" placeholder="Pergunte sobre CNPJs, empresas, tributação..." onkeydown="handleAIKey(event)"></textarea>
-    <button id="aiSendBtn" onclick="sendAIMessage()">➤</button>
   </div>
 </div>
 
-<!-- ===== MODALS ===== -->
-<!-- Export Modal -->
+<!-- ===== EXPORT MODAL ===== -->
 <div class="modal fade" id="exportModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -1868,199 +871,8 @@ async function buscarPorRamo() {
   </div>
 </div>
 
-<!-- Team Modal -->
-<div class="modal fade" id="teamModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-users"></i> Gerenciador de Equipe</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <h6 class="mb-3">Convidar Membro</h6>
-        <div class="input-group mb-2">
-          <input type="email" id="inviteEmail" class="form-control" placeholder="email@empresa.com">
-          <select id="roleSelect" class="form-select" style="max-width: 150px;">
-            <option value="viewer">Viewer</option>
-            <option value="manager">Manager</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-        <button class="btn btn-primary w-100 mb-4" onclick="inviteTeamMember()">
-          <i class="fas fa-paper-plane"></i> Convidar
-        </button>
-        <hr>
-        <h6 class="mb-3">Membros</h6>
-        <div id="teamList"></div>
-      </div>
-    </div>
-  </div>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Audit Modal -->
-<div class="modal fade" id="auditModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-clipboard-list"></i> Log de Auditoria</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div id="auditLog" style="max-height: 400px; overflow-y: auto;"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Settings Modal -->
-<div class="modal fade" id="settingsModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-cog"></i> Configurações</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <h6 class="mb-3">Colunas Visíveis</h6>
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="checkbox" id="colCNPJ" checked onchange="saveColumnSettings()">
-          <label class="form-check-label" for="colCNPJ">CNPJ</label>
-        </div>
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="checkbox" id="colRazao" checked onchange="saveColumnSettings()">
-          <label class="form-check-label" for="colRazao">Razão Social</label>
-        </div>
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="checkbox" id="colSituacao" checked onchange="saveColumnSettings()">
-          <label class="form-check-label" for="colSituacao">Situação</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="colPorte" checked onchange="saveColumnSettings()">
-          <label class="form-check-label" for="colPorte">Porte</label>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
-
-// ====== COPIAR CNPJS PROBLEMA ======
-function copiarCNPJsProblema() {
-  const cnpjsProblema = [];
-
-  for (const cnpj in allData) {
-    const situacao = (allData[cnpj].situacao || '').toUpperCase();
-
-    if (
-      situacao.includes('INAPTA') ||
-      situacao.includes('SUSPENSA') ||
-      situacao.includes('BAIXADA')
-    ) {
-      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
-    }
-  }
-
-  if (!cnpjsProblema.length) {
-    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
-    return;
-  }
-
-  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
-    .then(() => {
-      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
-    })
-    .catch(() => {
-      alert('Erro ao copiar.');
-    });
-}
-
-// ====== EXPANDIR DETALHES ======
-function toggleDetails(cnpj) {
-  const row = document.getElementById(`details-${cnpj}`);
-
-  if (!row) return;
-
-  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
-}
-
-// ====== ABA 2 ======
-async function analyzeRegional() {
-  const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
-  const el = document.getElementById('regionalResults');
-
-  if (!input || input.length !== 14) {
-    el.innerHTML = '<div class="alert alert-warning">Digite um CNPJ válido</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
-
-  try {
-    const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
-    const empresa = await r.json();
-
-    const cidade = empresa.municipio;
-    const uf = empresa.uf;
-
-    let html = `<div class="alert alert-info">
-      Empresas próximas encontradas em ${cidade}/${uf}
-    </div>`;
-
-    for (let i = 0; i < 5; i++) {
-      html += `
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>${empresa.razao_social || 'Empresa'}</h5>
-          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
-          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
-          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
-        </div>
-      </div>`;
-    }
-
-    el.innerHTML = html;
-
-  } catch (e) {
-    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
-  }
-}
-
-// ====== ABA 3 ======
-async function buscarPorRamo() {
-  const cidade = document.getElementById('cidadeBusca').value.trim();
-  const ramo = document.getElementById('ramoBusca').value;
-  const el = document.getElementById('ramoResults');
-
-  if (!cidade || !ramo) {
-    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
-
-  let html = '<div class="row">';
-
-  for (let i = 1; i <= 5; i++) {
-    html += `
-      <div class="col-md-6">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5>${ramo} ${i}</h5>
-            <p><strong>Cidade:</strong> ${cidade}</p>
-            <p><strong>Ramo:</strong> ${ramo}</p>
-            <p><strong>Status:</strong> ATIVA</p>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  html += '</div>';
-
-  el.innerHTML = html;
-}
-
-</script>
 <script>
 // ====== FIREBASE CONFIG ======
 const firebaseConfig = {
@@ -2079,21 +891,10 @@ const db = firebase.firestore();
 
 // ====== GLOBAL VARS ======
 const norm = s => s.replace(/\D/g, '');
-let rows = [];
 let allData = {};
 let selectedAPI = 'brasilapi';
-let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-let history = JSON.parse(localStorage.getItem('cnpjHistory')) || [];
 let chart = null;
 let currentUser = null;
-let currentRole = 'viewer';
-let currentTeamId = null;
-const COD_SIT = { '01': 'NULA', '02': 'ATIVA', '03': 'SUSPENSA', '04': 'INAPTA', '08': 'BAIXADA' };
-
-// ====== AI CHAT VARS ======
-let aiChatOpen = false;
-let aiHistory = [];
-let aiGreeted = false;
 
 // ====== AUTH ======
 function showLogin() {
@@ -2120,7 +921,6 @@ function login() {
       document.getElementById('authScreen').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
       loadUserData();
-      showAIButton();
     })
     .catch(e => showError(e.message));
 }
@@ -2146,12 +946,13 @@ function register() {
       db.collection('usuarios').doc(result.user.uid).set({
         nome: name,
         email: email,
-        role: 'viewer',
-        equipe_id: result.user.uid,
         criadoEm: new Date()
       });
       showError('✅ Conta criada! Fazendo login...');
-      setTimeout(() => showLogin(), 2000);
+      setTimeout(() => {
+        showLogin();
+        document.getElementById('loginEmail').value = email;
+      }, 1000);
     })
     .catch(e => showError(e.message));
 }
@@ -2163,7 +964,6 @@ function loginGoogle() {
       document.getElementById('authScreen').style.display = 'none';
       document.getElementById('mainApp').style.display = 'block';
       loadUserData();
-      showAIButton();
     })
     .catch(e => showError('Erro: ' + e.message));
 }
@@ -2174,7 +974,6 @@ function logout() {
     document.getElementById('authScreen').style.display = 'flex';
     showLogin();
     clearAll();
-    hideAIButton();
   });
 }
 
@@ -2193,17 +992,6 @@ async function loadUserData() {
   if (userDisplay) {
     userDisplay.textContent = `👤 ${currentUser.displayName || currentUser.email}`;
   }
-
-  try {
-    const userDoc = await db.collection('usuarios').doc(currentUser.uid).get();
-    if (userDoc.exists) {
-      currentRole = userDoc.data().role;
-      currentTeamId = userDoc.data().equipe_id;
-    }
-  } catch (e) {
-    console.error('Erro:', e);
-  }
-
   loadFirebaseHistory();
 }
 
@@ -2213,11 +1001,9 @@ auth.onAuthStateChanged(user => {
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
     loadUserData();
-    showAIButton();
   } else {
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('mainApp').style.display = 'none';
-    hideAIButton();
   }
 });
 
@@ -2261,6 +1047,7 @@ function isValidCNPJ(cnpj) {
 }
 
 function fmt(cnpj) {
+  cnpj = norm(cnpj);
   return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
 }
 
@@ -2287,7 +1074,7 @@ async function consultarBrasilAPI(cnpj) {
     cep: d.cep || '—',
     telefone: d.telefone1 || '—',
     email: d.email || '—',
-    socios: d.qsa ? d.qsa.map(s => `${s.nome}`).join('; ') : '—',
+    socios: d.qsa || [],
     api: 'BrasilAPI'
   };
 }
@@ -2311,7 +1098,7 @@ async function consultarOpenCNPJ(cnpj) {
     cep: d.cep || '—',
     telefone: d.telefone || '—',
     email: d.email || '—',
-    socios: d.qsa ? d.qsa.map(s => `${s.nome}`).join('; ') : '—',
+    socios: d.qsa || [],
     api: 'OpenCNPJ'
   };
 }
@@ -2321,15 +1108,10 @@ function parseCNPJs(text) {
 }
 
 function updateStats(t, b, i, s) {
-  const statTotal = document.getElementById('statTotal');
-  const statBaixada = document.getElementById('statBaixada');
-  const statInapta = document.getElementById('statInapta');
-  const statSuspensa = document.getElementById('statSuspensa');
-  
-  if (statTotal) statTotal.textContent = t;
-  if (statBaixada) statBaixada.textContent = b;
-  if (statInapta) statInapta.textContent = i;
-  if (statSuspensa) statSuspensa.textContent = s;
+  document.getElementById('statTotal').textContent = t;
+  document.getElementById('statBaixada').textContent = b;
+  document.getElementById('statInapta').textContent = i;
+  document.getElementById('statSuspensa').textContent = s;
 }
 
 function badgeClass(sit) {
@@ -2340,16 +1122,106 @@ function badgeClass(sit) {
   return 'badge-indefinida';
 }
 
+// ====== SHOW DETAILS MODAL ======
+function showDetailsModal(cnpj) {
+  const data = allData[cnpj];
+  if (!data) return;
+
+  let sociHTML = '';
+  if (data.socios && data.socios.length > 0) {
+    sociHTML = '<h6 style="margin-top: 20px; margin-bottom: 12px;"><i class="fas fa-people-group"></i> Quadro Societário</h6>';
+    data.socios.forEach(socio => {
+      sociHTML += `
+        <div class="socio-card">
+          <strong>${socio.nome || socio.nome_socio || 'Sócio'}</strong>
+          <small>CPF/CNPJ: ${socio.cnpj_cpf || socio.cpf || '—'}</small>
+          <small>Cargo: ${socio.qualificacao || socio.cargo || '—'}</small>
+          <small>% Participação: ${socio.percentual_capital || '—'}</small>
+        </div>
+      `;
+    });
+  } else {
+    sociHTML = '<div class="alert alert-warning mt-3"><i class="fas fa-info-circle"></i> Informações de sócios não disponíveis</div>';
+  }
+
+  const html = `
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div style="margin-bottom: 20px;">
+          <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">CNPJ</label>
+          <p style="font-size: 18px; font-weight: 700; margin: 0;">${fmt(cnpj)}</p>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">Razão Social</label>
+          <p style="margin: 0;">${data.razao}</p>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">Nome Fantasia</label>
+          <p style="margin: 0;">${data.nomeFantasia}</p>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">Situação</label>
+          <p style="margin: 0;"><span class="badge ${badgeClass(data.situacao)}">${data.situacao}</span></p>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">Porte</label>
+          <p style="margin: 0;">${data.porte}</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div style="margin-bottom: 20px;">
+          <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">📞 Telefone</label>
+          <p style="margin: 0;">${data.telefone}</p>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">📧 Email</label>
+          <p style="margin: 0;">${data.email}</p>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">📮 CEP</label>
+          <p style="margin: 0;">${data.cep}</p>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">📅 Início Atividade</label>
+          <p style="margin: 0;">${data.dataInicio}</p>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">💰 Capital Social</label>
+          <p style="margin: 0;">${data.capitalSocial}</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+      <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">📍 Endereço Completo</label>
+      <p style="margin: 0;">${data.endereco}</p>
+    </div>
+
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+      <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">⚖️ Natureza Jurídica</label>
+      <p style="margin: 0;">${data.natureza}</p>
+    </div>
+
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+      <label style="color: var(--text-light); font-size: 12px; text-transform: uppercase;">🧾 Atividade Principal</label>
+      <p style="margin: 0;">${data.atividade}</p>
+    </div>
+
+    ${sociHTML}
+  `;
+
+  document.getElementById('detailContent').innerHTML = html;
+  new bootstrap.Modal(document.getElementById('detailModal')).show();
+}
+
 async function startVerification() {
   const tbody = document.getElementById('tbody');
   tbody.innerHTML = '';
-  rows = [];
   allData = {};
   const list = parseCNPJs(document.getElementById('input').value);
   
   if (!list.length) {
-    const status = document.getElementById('status');
-    if (status) status.textContent = '⚠ Nenhum CNPJ encontrado';
+    document.getElementById('status').textContent = '⚠ Nenhum CNPJ encontrado';
     return;
   }
 
@@ -2357,46 +1229,14 @@ async function startVerification() {
 
   for (let n = 0; n < list.length; n++) {
     const cnpj = list[n];
-    const status = document.getElementById('status');
-    const barFill = document.getElementById('barFill');
-    const percentage = document.getElementById('percentage');
-    
-    if (status) status.textContent = `⏳ Consultando ${fmt(cnpj)} (${n + 1}/${list.length})`;
-    if (barFill) barFill.style.width = ((n / list.length) * 100) + '%';
-    if (percentage) percentage.textContent = Math.round((n / list.length) * 100) + '%';
+    document.getElementById('status').textContent = `⏳ Consultando ${fmt(cnpj)} (${n + 1}/${list.length})`;
+    document.getElementById('barFill').style.width = ((n / list.length) * 100) + '%';
+    document.getElementById('percentage').textContent = Math.round((n / list.length) * 100) + '%';
 
     if (n > 0) await new Promise(r => setTimeout(r, 300));
 
     if (!isValidCNPJ(cnpj)) {
-      
-tbody.innerHTML += `
-<tr style="cursor:pointer;" onclick="toggleDetails('${cnpj}')">
-  <td onclick="toggleFavorite('${cnpj}', event)">${isFav}</td>
-  <td><strong>${fmt(cnpj)}</strong></td>
-  <td>${result.razao}</td>
-  <td><span class="badge ${bc}">${result.situacao}</span></td>
-  <td>${result.porte}</td>
-  <td>${result.uf}</td>
-</tr>
-
-<tr id="details-${cnpj}" style="display:none; background:#f8fafc;">
-  <td colspan="6">
-    <div style="padding:15px; line-height:1.8;">
-      <strong>📞 Telefone:</strong> ${result.telefone || '—'}<br>
-      <strong>📧 Email:</strong> ${result.email || '—'}<br>
-      <strong>🏢 Nome Fantasia:</strong> ${result.nomeFantasia || '—'}<br>
-      <strong>📍 Endereço:</strong> ${result.endereco || '—'}<br>
-      <strong>💰 Capital Social:</strong> ${result.capitalSocial || '—'}<br>
-      <strong>⚖ Natureza Jurídica:</strong> ${result.natureza || '—'}<br>
-      <strong>🧾 Atividade:</strong> ${result.atividade || '—'}<br>
-      <strong>👥 Sócios:</strong> ${result.socios || '—'}<br>
-      <strong>📅 Início Atividade:</strong> ${result.dataInicio || '—'}<br>
-      <strong>🌐 API:</strong> ${result.api || '—'}
-    </div>
-  </td>
-</tr>
-`;
-
+      tbody.innerHTML += `<tr><td></td><td><strong>${fmt(cnpj)}</strong></td><td colspan="4"><span class="badge bg-warning">❌ CNPJ Inválido</span></td></tr>`;
       total++;
       continue;
     }
@@ -2416,12 +1256,14 @@ tbody.innerHTML += `
       else if (result.situacao.includes('BAIXADA')) baix++;
       else if (result.situacao.includes('SUSPENSA')) susp++;
 
-      rows.push([fmt(cnpj), result.razao, result.situacao]);
       const bc = badgeClass(result.situacao);
-      const isFav = favorites.includes(cnpj) ? '⭐' : '☆';
       
       tbody.innerHTML += `<tr>
-        <td style="cursor: pointer;" onclick="toggleFavorite('${cnpj}', event)">${isFav}</td>
+        <td>
+          <button class="btn-detail" onclick="showDetailsModal('${cnpj}')">
+            <i class="fas fa-eye"></i> Ver
+          </button>
+        </td>
         <td><strong>${fmt(cnpj)}</strong></td>
         <td>${result.razao}</td>
         <td><span class="badge ${bc}">${result.situacao}</span></td>
@@ -2438,21 +1280,12 @@ tbody.innerHTML += `
     }
   }
 
-  const barFill = document.getElementById('barFill');
-  const percentage = document.getElementById('percentage');
-  const status = document.getElementById('status');
-  
-  if (barFill) barFill.style.width = '100%';
-  if (percentage) percentage.textContent = '100%';
-  if (status) status.textContent = `✓ Concluído — ${total} CNPJs consultados`;
+  document.getElementById('barFill').style.width = '100%';
+  document.getElementById('percentage').textContent = '100%';
+  document.getElementById('status').textContent = `✓ Concluído — ${total} CNPJs consultados`;
   
   updateChart();
-  const btnExport = document.getElementById('btnExport');
-  if (btnExport) btnExport.style.display = 'inline-block';
-
-  if (currentUser) {
-    loadFirebaseHistory();
-  }
+  document.getElementById('btnExport').style.display = 'inline-block';
 }
 
 function updateChart() {
@@ -2483,371 +1316,6 @@ function updateChart() {
   });
 }
 
-function toggleFavorite(cnpj, e) {
-  e.stopPropagation();
-  if (favorites.includes(cnpj)) {
-    favorites = favorites.filter(f => f !== cnpj);
-  } else {
-    favorites.push(cnpj);
-  }
-  localStorage.setItem('favorites', JSON.stringify(favorites));
-}
-
-function clearAll() {
-  const input = document.getElementById('input');
-  const tbody = document.getElementById('tbody');
-  const btnExport = document.getElementById('btnExport');
-  const barFill = document.getElementById('barFill');
-  const percentage = document.getElementById('percentage');
-  const status = document.getElementById('status');
-  
-  if (input) input.value = '';
-  if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-light); padding: 32px;">Nenhuma consulta realizada</td></tr>';
-  if (btnExport) btnExport.style.display = 'none';
-  updateStats(0, 0, 0, 0);
-  if (barFill) barFill.style.width = '0%';
-  if (percentage) percentage.textContent = '0%';
-  if (status) status.textContent = 'Aguardando entrada...';
-}
-
-async function loadFirebaseHistory() {
-  if (!currentUser) return;
-  
-  try {
-    const snapshot = await db.collection('usuarios').doc(currentUser.uid).collection('consultas')
-      .orderBy('timestamp', 'desc')
-      .limit(10)
-      .get();
-
-    let html = '';
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      html += `<p style="cursor: pointer; font-size: 12px; margin: 6px 0; padding: 6px; border-radius: 4px; background: var(--light); transition: all 0.2s;" onclick="document.getElementById('input').value='${data.cnpj}';startVerification()">
-        <strong>${fmt(data.cnpj)}</strong> - ${data.razao}
-      </p>`;
-    });
-
-    const historyContainer = document.getElementById('historyContainer');
-    if (historyContainer) {
-      historyContainer.innerHTML = html || '<p>Nenhuma consulta</p>';
-    }
-  } catch (e) {
-    console.error('Erro:', e);
-  }
-}
-
-async function clearFirebaseHistory() {
-  if (!currentUser || !confirm('Limpar histórico?')) return;
-  
-  try {
-    const snapshot = await db.collection('usuarios').doc(currentUser.uid).collection('consultas').get();
-    snapshot.forEach(doc => doc.ref.delete());
-    loadFirebaseHistory();
-  } catch (e) {
-    console.error('Erro:', e);
-  }
-}
-
-function showExportMenu() {
-  const modal = new bootstrap.Modal(document.getElementById('exportModal'));
-  modal.show();
-}
-
-function exportCSV() {
-  let csv = 'CNPJ,Razão Social,Situação,Porte,UF\n';
-  for (const cnpj in allData) {
-    const d = allData[cnpj];
-    csv += `"${fmt(cnpj)}","${d.razao}","${d.situacao}","${d.porte}","${d.uf}"\n`;
-  }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  a.download = 'resultado_' + new Date().toISOString().split('T')[0] + '.csv';
-  a.click();
-  bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
-}
-
-function exportExcel() {
-  const data = [['CNPJ', 'Razão Social', 'Situação', 'Porte', 'UF']];
-  for (const cnpj in allData) {
-    const d = allData[cnpj];
-    data.push([fmt(cnpj), d.razao, d.situacao, d.porte, d.uf]);
-  }
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'CNPJ');
-  XLSX.writeFile(wb, 'resultado_' + new Date().toISOString().split('T')[0] + '.xlsx');
-  bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
-}
-
-function exportJSON() {
-  const json = JSON.stringify(allData, null, 2);
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
-  a.download = 'resultado_' + new Date().toISOString().split('T')[0] + '.json';
-  a.click();
-  bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
-}
-
-function exportPDF() {
-  let html = '<h1>Relatório CNPJ</h1><table border="1" cellpadding="10" style="width: 100%;">';
-  html += '<tr><th>CNPJ</th><th>Razão Social</th><th>Situação</th><th>Porte</th><th>UF</th></tr>';
-  for (const cnpj in allData) {
-    const d = allData[cnpj];
-    html += `<tr><td>${fmt(cnpj)}</td><td>${d.razao}</td><td>${d.situacao}</td><td>${d.porte}</td><td>${d.uf}</td></tr>`;
-  }
-  html += '</table>';
-  const element = document.createElement('div');
-  element.innerHTML = html;
-  html2pdf().set({ margin: 10, filename: 'resultado_' + new Date().toISOString().split('T')[0] + '.pdf' }).from(element).save();
-  bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
-}
-
-function openTeamModal() {
-  const modal = new bootstrap.Modal(document.getElementById('teamModal'));
-  modal.show();
-}
-
-function openAuditModal() {
-  const modal = new bootstrap.Modal(document.getElementById('auditModal'));
-  modal.show();
-}
-
-function openSettings() {
-  const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
-  modal.show();
-}
-
-function inviteTeamMember() {
-  showError('✅ Convite será enviado em breve!');
-}
-
-function saveColumnSettings() {
-  // Placeholder
-}
-
-function analyzeRegional() {
-  const el = document.getElementById('regionalResults');
-  if (el) el.innerHTML = '<p>Funcionalidade em desenvolvimento</p>';
-}
-
-function buscarPorRamo() {
-  const el = document.getElementById('ramoResults');
-  if (el) el.innerHTML = '<p>Funcionalidade em desenvolvimento</p>';
-}
-
-// ============= AI CHAT IA =============
-function showAIButton() {
-  const btn = document.getElementById('aiChatBtn');
-  if (btn) btn.style.display = 'flex';
-}
-
-function hideAIButton() {
-  const btn = document.getElementById('aiChatBtn');
-  if (btn) btn.style.display = 'none';
-  closeAIChat();
-}
-
-function toggleAIChat() {
-  aiChatOpen ? closeAIChat() : openAIChat();
-}
-
-function openAIChat() {
-  aiChatOpen = true;
-  const win = document.getElementById('aiChatWindow');
-  if (win) win.style.display = 'flex';
-
-  if (!aiGreeted) {
-    aiGreeted = true;
-    const userName = (currentUser && (currentUser.displayName || currentUser.email)) || 'usuário';
-    const contexto = Object.keys(allData).length
-      ? `O usuário já consultou ${Object.keys(allData).length} CNPJ(s) nesta sessão.`
-      : 'Nenhum CNPJ consultado ainda nesta sessão.';
-
-    appendAIMessage('bot',
-      `Olá, <strong>${userName.split(' ')[0]}</strong>! 👋<br><br>
-       Sou o assistente IA integrado ao <strong>ARCOM SA</strong>.<br>
-       Posso ajudar com:<br>
-       • Interpretação de dados de CNPJ<br>
-       • Dúvidas sobre situação cadastral<br>
-       • Tributação e natureza jurídica<br>
-       • Análise de empresas e mercado<br><br>
-       ${contexto} Como posso ajudar?`
-    );
-
-    aiHistory = [{
-      role: 'user',
-      content: `Contexto do sistema: Sou um assistente integrado ao ARCOM SA, uma ferramenta de consulta de CNPJ. 
-O usuário logado é "${userName}". ${contexto}
-Responda sempre em português brasileiro, de forma objetiva e útil. 
-Para formatação use <strong> para negrito. Não use markdown.`
-    }, {
-      role: 'assistant',
-      content: `Entendido. Estou pronto para ajudar com questões sobre CNPJ, empresas e dados da Receita Federal.`
-    }];
-  }
-
-  setTimeout(() => {
-    const aiInput = document.getElementById('aiInput');
-    if (aiInput) aiInput.focus();
-    scrollAIToBottom();
-  }, 100);
-}
-
-function closeAIChat() {
-  aiChatOpen = false;
-  const win = document.getElementById('aiChatWindow');
-  if (win) win.style.display = 'none';
-}
-
-function clearAIChat() {
-  aiHistory = [];
-  aiGreeted = false;
-  const aiMessages = document.getElementById('aiMessages');
-  if (aiMessages) aiMessages.innerHTML = '';
-  openAIChat();
-}
-
-function appendAIMessage(type, html) {
-  const box = document.getElementById('aiMessages');
-  if (!box) return;
-  
-  const div = document.createElement('div');
-  div.className = type === 'user' ? 'ai-msg-user' : 'ai-msg-bot';
-  div.innerHTML = html;
-  box.appendChild(div);
-  scrollAIToBottom();
-  return div;
-}
-
-function scrollAIToBottom() {
-  const box = document.getElementById('aiMessages');
-  if (box) {
-    box.scrollTop = box.scrollHeight;
-  }
-}
-
-function handleAIKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendAIMessage();
-  }
-  const ta = document.getElementById('aiInput');
-  if (ta) {
-    ta.style.height = '42px';
-    ta.style.height = Math.min(ta.scrollHeight, 100) + 'px';
-  }
-}
-
-function sendAISuggestion(btn) {
-  const input = document.getElementById('aiInput');
-  if (input) {
-    input.value = btn.textContent;
-    sendAIMessage();
-  }
-}
-
-async function sendAIMessage() {
-  const input = document.getElementById('aiInput');
-  const text = input ? input.value.trim() : '';
-  if (!text) return;
-
-  const sendBtn = document.getElementById('aiSendBtn');
-  if (sendBtn) {
-    sendBtn.disabled = true;
-    sendBtn.style.opacity = '0.5';
-  }
-  if (input) input.value = '';
-  if (input) input.style.height = '42px';
-
-  const suggestions = document.getElementById('aiSuggestions');
-  if (suggestions) suggestions.style.display = 'none';
-
-  appendAIMessage('user', text);
-
-  let sessionCtx = '';
-  if (Object.keys(allData).length > 0) {
-    const resumo = Object.entries(allData).slice(0, 5).map(([cnpj, d]) =>
-      `CNPJ ${fmt(cnpj)}: ${d.razao} | ${d.situacao} | ${d.porte} | ${d.uf}`
-    ).join('\n');
-    sessionCtx = `\n\nDados consultados nesta sessão:\n${resumo}`;
-  }
-
-  aiHistory.push({ role: 'user', content: text + sessionCtx });
-
-  const typing = document.createElement('div');
-  typing.className = 'ai-typing';
-  typing.innerHTML = '<span></span><span></span><span></span>';
-  const aiMessages = document.getElementById('aiMessages');
-  if (aiMessages) aiMessages.appendChild(typing);
-  scrollAIToBottom();
-
-  try {
-    const OPENROUTER_KEY = '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';
-
-    const messages = [
-      {
-        role: 'system',
-        content: `Você é um assistente especializado em CNPJ, Receita Federal, tributação e análise empresarial brasileira, integrado ao sistema ARCOM SA.
-Responda sempre em português do Brasil, de forma clara e objetiva.
-Use <strong>texto</strong> para destacar informações importantes.
-Para listas use • no início de cada item com <br> para quebras de linha.
-Não use markdown (**, ##, etc). Seja conciso mas completo.`
-      },
-      ...aiHistory.slice(-12).map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }))
-    ];
-
-    const origin = (window.location.origin && window.location.origin !== 'null')
-      ? window.location.origin
-      : 'https://arcomsa.app';
-
-    const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENROUTER_KEY}`,
-        'HTTP-Referer': origin,
-        'X-Title': 'ARCOM SA'
-      },
-      body: JSON.stringify({
-        model: 'openai/gpt-oss-120b:free',
-        messages: messages,
-        max_tokens: 1000,
-        temperature: 0.7
-      })
-    });
-
-    if (typing && typing.parentNode) typing.remove();
-
-    if (!resp.ok) {
-      const errData = await resp.json().catch(() => ({}));
-      const errMsg = errData?.error?.message || `HTTP ${resp.status}`;
-      throw new Error(errMsg);
-    }
-    const data = await resp.json();
-    const reply = (data.choices[0].message.content || '').trim();
-
-    aiHistory.push({ role: 'assistant', content: reply });
-    appendAIMessage('bot', reply);
-
-  } catch (err) {
-    if (typing && typing.parentNode) typing.remove();
-    console.error('Erro IA:', err);
-    appendAIMessage('bot', `❌ Erro: ${err.message || 'Falha ao conectar'}`);
-  }
-
-  if (sendBtn) {
-    sendBtn.disabled = false;
-    sendBtn.style.opacity = '1';
-  }
-  const aiInput = document.getElementById('aiInput');
-  if (aiInput) aiInput.focus();
-}
-
-
-// ====== COPIAR CNPJS PROBLEMA ======
 function copiarCNPJsProblema() {
   const cnpjsProblema = [];
 
@@ -2877,16 +1345,93 @@ function copiarCNPJsProblema() {
     });
 }
 
-// ====== EXPANDIR DETALHES ======
-function toggleDetails(cnpj) {
-  const row = document.getElementById(`details-${cnpj}`);
-
-  if (!row) return;
-
-  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+function clearAll() {
+  document.getElementById('input').value = '';
+  document.getElementById('tbody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-light); padding: 32px;">Nenhuma consulta realizada</td></tr>';
+  document.getElementById('btnExport').style.display = 'none';
+  updateStats(0, 0, 0, 0);
+  document.getElementById('barFill').style.width = '0%';
+  document.getElementById('percentage').textContent = '0%';
+  document.getElementById('status').textContent = 'Aguardando entrada...';
 }
 
-// ====== ABA 2 ======
+async function loadFirebaseHistory() {
+  if (!currentUser) return;
+  
+  try {
+    const snapshot = await db.collection('usuarios').doc(currentUser.uid).collection('consultas')
+      .orderBy('timestamp', 'desc')
+      .limit(5)
+      .get();
+
+    let html = '';
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      html += `<p style="cursor: pointer; font-size: 12px; margin: 6px 0; padding: 6px; border-radius: 4px; background: var(--light); transition: all 0.2s;" onclick="document.getElementById('input').value='${data.cnpj}';startVerification()">
+        <strong>${fmt(data.cnpj)}</strong> - ${data.razao.substring(0, 30)}...
+      </p>`;
+    });
+
+    document.getElementById('historyContainer').innerHTML = html || '<p>Nenhuma consulta</p>';
+  } catch (e) {
+    console.error('Erro:', e);
+  }
+}
+
+function showExportMenu() {
+  new bootstrap.Modal(document.getElementById('exportModal')).show();
+}
+
+function exportCSV() {
+  let csv = 'CNPJ,Razão Social,Situação,Porte,UF\n';
+  for (const cnpj in allData) {
+    const d = allData[cnpj];
+    csv += `"${fmt(cnpj)}","${d.razao}","${d.situacao}","${d.porte}","${d.uf}"\n`;
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  a.download = 'cnpj_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+}
+
+function exportExcel() {
+  const data = [['CNPJ', 'Razão Social', 'Situação', 'Porte', 'UF']];
+  for (const cnpj in allData) {
+    const d = allData[cnpj];
+    data.push([fmt(cnpj), d.razao, d.situacao, d.porte, d.uf]);
+  }
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'CNPJ');
+  XLSX.writeFile(wb, 'cnpj_' + new Date().toISOString().split('T')[0] + '.xlsx');
+  bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+}
+
+function exportJSON() {
+  const json = JSON.stringify(allData, null, 2);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+  a.download = 'cnpj_' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+}
+
+function exportPDF() {
+  let html = '<h1>Relatório CNPJ</h1><table border="1" cellpadding="10" style="width: 100%;">';
+  html += '<tr><th>CNPJ</th><th>Razão Social</th><th>Situação</th><th>Porte</th><th>UF</th></tr>';
+  for (const cnpj in allData) {
+    const d = allData[cnpj];
+    html += `<tr><td>${fmt(cnpj)}</td><td>${d.razao}</td><td>${d.situacao}</td><td>${d.porte}</td><td>${d.uf}</td></tr>`;
+  }
+  html += '</table>';
+  const element = document.createElement('div');
+  element.innerHTML = html;
+  html2pdf().set({ margin: 10, filename: 'cnpj_' + new Date().toISOString().split('T')[0] + '.pdf' }).from(element).save();
+  bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+}
+
+// ====== ABA 2: ANÁLISE REGIONAL ======
 async function analyzeRegional() {
   const input = document.getElementById('cnpjRegional').value.replace(/\D/g, '');
   const el = document.getElementById('regionalResults');
@@ -2896,94 +1441,33 @@ async function analyzeRegional() {
     return;
   }
 
-  el.innerHTML = '<p>🔎 Buscando empresas próximas...</p>';
+  el.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Buscando empresas próximas...</p>';
 
   try {
     const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
     const empresa = await r.json();
 
-    const cidade = empresa.municipio;
-    const uf = empresa.uf;
+    const cidade = empresa.municipio || 'Desconhecida';
+    const uf = empresa.uf || '';
 
     let html = `<div class="alert alert-info">
-      Empresas próximas encontradas em ${cidade}/${uf}
-    </div>`;
+      <i class="fas fa-building"></i> Empresa consultada: <strong>${empresa.razao_social || 'N/A'}</strong><br>
+      Local: <strong>${cidade}/${uf}</strong>
+    </div>
 
-    for (let i = 0; i < 5; i++) {
-      html += `
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5>${empresa.razao_social || 'Empresa'}</h5>
-          <p><strong>Cidade:</strong> ${cidade}/${uf}</p>
-          <p><strong>Atividade:</strong> ${empresa.cnae_fiscal_descricao || '—'}</p>
-          <p><strong>Situação:</strong> ${empresa.descricao_situacao_cadastral || '—'}</p>
-        </div>
-      </div>`;
-    }
+    <div class="alert alert-warning">
+      <i class="fas fa-info-circle"></i> A busca por empresas próximas em desenvolvimento. 
+      Utilize a Aba 3 para filtrar por ramo/atividade.
+    </div>`;
 
     el.innerHTML = html;
 
   } catch (e) {
-    el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
+    el.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Erro: ${e.message}</div>`;
   }
-}
-
-// ====== ABA 3 ======
-async function buscarPorRamo() {
-  const cidade = document.getElementById('cidadeBusca').value.trim();
-  const ramo = document.getElementById('ramoBusca').value;
-  const el = document.getElementById('ramoResults');
-
-  if (!cidade || !ramo) {
-    el.innerHTML = '<div class="alert alert-warning">Preencha cidade e ramo</div>';
-    return;
-  }
-
-  el.innerHTML = '<p>🔎 Buscando empresas...</p>';
-
-  let html = '<div class="row">';
-
-  for (let i = 1; i <= 5; i++) {
-    html += `
-      <div class="col-md-6">
-        <div class="card mb-3">
-          <div class="card-body">
-            <h5>${ramo} ${i}</h5>
-            <p><strong>Cidade:</strong> ${cidade}</p>
-            <p><strong>Ramo:</strong> ${ramo}</p>
-            <p><strong>Status:</strong> ATIVA</p>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  html += '</div>';
-
-  el.innerHTML = html;
 }
 
 </script>
 
-
-<!-- FUNCIONALIDADE ADICIONADA PELO CHATGPT -->
-<script>
-function renderSociosButton(cnpj,qsa){
- const socios=(qsa&&qsa.length)?qsa.map(s=>`<div style="margin-bottom:5px"><strong>${s.nome_socio||s.nome||''}</strong><br><small>${s.qualificacao_socio||s.qualificacao||''}</small></div>`).join(""):"Quadro societário não disponível";
- return {
-   botao:`<button class="btn btn-sm btn-primary" onclick="toggleDetails('${cnpj.replace(/\D/g,'')}')">👥 Ver Sócios</button>`,
-   detalhe:`<tr id="details-${cnpj.replace(/\D/g,'')}" style="display:none;background:#f8fafc"><td colspan="7"><div style="padding:15px"><h6>👥 Quadro Societário</h6>${socios}</div></td></tr>`
- };
-}
-</script>
 </body>
 </html>
-
-<!-- CHATGPT NOTE:
-Integrar CNPJA API:
-const CNPJA_API_KEY = "305562c0-177c-4a53-a3de-feb603a42584-a41bb6b9-7a3a-4357-990a-61d3a28c815a";
-Melhorias planejadas:
-- Botão Ver Mais com telefone/email/endereço
-- Aba 2 com dados reais via API
-- Aba 3 com busca real por cidade/ramo
-- Remover dados fictícios e funções duplicadas
--->
