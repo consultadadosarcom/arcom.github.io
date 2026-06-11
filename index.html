@@ -1730,11 +1730,12 @@ async function buscarPorRamo() {
                     <th>Situação</th>
                     <th>Porte</th>
                     <th>Estado</th>
+                    <th>Sócios</th>
                   </tr>
                 </thead>
                 <tbody id="tbody">
                   <tr>
-                    <td colspan="6" style="text-align: center; color: var(--text-light); padding: 32px;">
+                    <td colspan="7" style="text-align: center; color: var(--text-light); padding: 32px;">
                       Nenhuma consulta realizada
                     </td>
                   </tr>
@@ -2963,6 +2964,17 @@ async function buscarPorRamo() {
 
 </script>
 
+
+<!-- FUNCIONALIDADE ADICIONADA PELO CHATGPT -->
+<script>
+function renderSociosButton(cnpj,qsa){
+ const socios=(qsa&&qsa.length)?qsa.map(s=>`<div style="margin-bottom:5px"><strong>${s.nome_socio||s.nome||''}</strong><br><small>${s.qualificacao_socio||s.qualificacao||''}</small></div>`).join(""):"Quadro societário não disponível";
+ return {
+   botao:`<button class="btn btn-sm btn-primary" onclick="toggleDetails('${cnpj.replace(/\D/g,'')}')">👥 Ver Sócios</button>`,
+   detalhe:`<tr id="details-${cnpj.replace(/\D/g,'')}" style="display:none;background:#f8fafc"><td colspan="7"><div style="padding:15px"><h6>👥 Quadro Societário</h6>${socios}</div></td></tr>`
+ };
+}
+</script>
 </body>
 </html>
 
