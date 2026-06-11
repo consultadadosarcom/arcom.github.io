@@ -836,9 +836,7 @@
   <nav class="navbar sticky-top">
     <div class="container-fluid px-4">
       <a class="navbar-brand" href="#">
-        <i class="fas fa-search"></i> ARCOM SA
-              <div class="footer-creator">
-        🚀 Developer - João Lucas
+        <i class="fas fa-search"></i> Tool made by João - ARCOM SA
       </a>
       <div class="nav-buttons">
         <span style="font-size: 14px; color: var(--text-light); margin-right: 8px;" id="userDisplay"></span>
@@ -929,6 +927,10 @@
                   </button>
                   <button class="btn btn-outline-secondary" onclick="clearAll()">
                     <i class="fas fa-redo"></i> Limpar
+                    </button>
+                     <button class="btn btn-warning" onclick="copiarCNPJsProblema()">
+                        <i class="fas fa-copy"></i> Copiar Inaptos/Suspensos/Baixados
+                       </button>
                   </button>
                   <button class="btn btn-success d-none" id="btnExport" onclick="showExportMenu()">
                     <i class="fas fa-download"></i> Exportar
@@ -1995,6 +1997,38 @@ Não use markdown (**, ##, etc). Seja conciso mas completo.`
   const aiInput = document.getElementById('aiInput');
   if (aiInput) aiInput.focus();
 }
+  function copiarCNPJsProblema() {
+  const cnpjsProblema = [];
+
+  for (const cnpj in allData) {
+    const situacao = (allData[cnpj].situacao || '').toUpperCase();
+
+    if (
+      situacao.includes('INAPTA') ||
+      situacao.includes('SUSPENSA') ||
+      situacao.includes('BAIXADA')
+    ) {
+      cnpjsProblema.push(cnpj.replace(/\D/g, ''));
+    }
+  }
+
+  if (!cnpjsProblema.length) {
+    alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
+    return;
+  }
+
+  navigator.clipboard.writeText(cnpjsProblema.join('\n'))
+    .then(() => {
+      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
+    })
+    .catch(() => {
+      alert('Erro ao copiar.');
+    });
+}
+
+</script>
+</body>
+</html>
 </script>
 
 </body>
