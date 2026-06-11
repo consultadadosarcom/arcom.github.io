@@ -2987,3 +2987,39 @@ Melhorias planejadas:
 - Aba 3 com busca real por cidade/ramo
 - Remover dados fictícios e funções duplicadas
 -->
+
+
+<!-- ===== ADIÇÃO CHATGPT - VER MAIS ===== -->
+<script>
+async function verMaisCNPJ(cnpj){
+ try{
+   const r=await fetch("https://brasilapi.com.br/api/cnpj/v1/"+cnpj.replace(/\D/g,''));
+   const d=await r.json();
+   let socios="<p>Nenhum sócio encontrado.</p>";
+   if(d.qsa && d.qsa.length){
+      socios="<ul>"+d.qsa.map(s=>"<li><b>"+(s.nome_socio||"-")+"</b><br>"+(s.qualificacao_socio||"-")+"</li>").join("")+"</ul>";
+   }
+   let modal=document.getElementById("modalVerMais");
+   if(!modal){
+      document.body.insertAdjacentHTML("beforeend",`
+      <div id="modalVerMais" style="position:fixed;inset:0;background:#0008;z-index:99999;overflow:auto;display:none;">
+      <div style="background:#fff;margin:30px auto;padding:20px;max-width:900px;border-radius:10px;">
+      <button onclick="document.getElementById('modalVerMais').style.display='none'" style="float:right">Fechar</button>
+      <div id="modalConteudo"></div>
+      </div></div>`);
+      modal=document.getElementById("modalVerMais");
+   }
+   document.getElementById("modalConteudo").innerHTML=
+   "<h2>"+(d.razao_social||"-")+"</h2>"+
+   "<p><b>CNPJ:</b> "+(d.cnpj||"-")+"</p>"+
+   "<p><b>Nome Fantasia:</b> "+(d.nome_fantasia||"-")+"</p>"+
+   "<p><b>Situação:</b> "+(d.descricao_situacao_cadastral||"-")+"</p>"+
+   "<p><b>Telefone:</b> "+(d.ddd_telefone_1||"-")+"</p>"+
+   "<p><b>Email:</b> "+(d.email||"-")+"</p>"+
+   "<hr><h3>Sócios</h3>"+socios+
+   "<hr><pre style='white-space:pre-wrap'>"+JSON.stringify(d,null,2)+"</pre>";
+   modal.style.display="block";
+ }catch(e){ alert("Erro ao consultar detalhes.");}
+}
+</script>
+<!-- ===== FIM ADIÇÃO ===== -->
