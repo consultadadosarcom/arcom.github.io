@@ -1161,9 +1161,10 @@ function exportCSV() {
   a.click();
   bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
 }
-
+  
 function exportExcel() {
-  const data = [[
+
+  const empresas = [[
     'CNPJ',
     'Razão Social',
     'Nome Fantasia',
@@ -1171,69 +1172,105 @@ function exportExcel() {
     'Porte',
     'Natureza Jurídica',
     'Atividade Principal',
-    'Data Início',
+    'Data de Abertura',
     'Capital Social',
-    'Endereço',
+    'Endereço Completo',
     'CEP',
     'UF',
     'Telefone',
-    'Email',
-    'Sócios',
-    'API'
+    'E-mail',
+    'Quantidade de Sócios',
+    'API Utilizada'
+  ]];
+
+  const socios = [[
+    'CNPJ',
+    'Razão Social',
+    'Nome do Sócio',
+    'Qualificação'
   ]];
 
   for (const cnpj in allData) {
+
     const d = allData[cnpj];
 
-    data.push([
+    empresas.push([
       fmt(cnpj),
-      d.razao,
-      d.nomeFantasia,
-      d.situacao,
-      d.porte,
-      d.natureza,
-      d.atividade,
-      d.dataInicio,
-      d.capitalSocial,
-      d.endereco,
-      d.cep,
-      d.uf,
-      d.telefone,
-      d.email,
-      (d.socios || [])
-        .map(s => s.nome_socio || s.nome)
-        .join(' | '),
-      d.api
+      d.razao || '',
+      d.nomeFantasia || '',
+      d.situacao || '',
+      d.porte || '',
+      d.natureza || '',
+      d.atividade || '',
+      d.dataInicio || '',
+      d.capitalSocial || '',
+      d.endereco || '',
+      d.cep || '',
+      d.uf || '',
+      d.telefone || '',
+      d.email || '',
+      d.socios ? d.socios.length : 0,
+      d.api || ''
     ]);
+
+    if (d.socios && d.socios.length) {
+      d.socios.forEach(s => {
+        socios.push([
+          fmt(cnpj),
+          d.razao || '',
+          s.nome_socio || s.nome || '',
+          s.qualificacao_socio || s.qualificacao || ''
+        ]);
+      });
+    }
   }
 
-  const ws = XLSX.utils.aoa_to_sheet(data);
-
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'CNPJ');
+
+  const wsEmpresas = XLSX.utils.aoa_to_sheet(empresas);
+  const wsSocios = XLSX.utils.aoa_to_sheet(socios);
+
+  wsEmpresas['!cols'] = [
+    { wch: 20 },
+    { wch: 50 },
+    { wch: 40 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 40 },
+    { wch: 50 },
+    { wch: 15 },
+    { wch: 20 },
+    { wch: 70 },
+    { wch: 15 },
+    { wch: 10 },
+    { wch: 20 },
+    { wch: 35 },
+    { wch: 15 },
+    { wch: 15 }
+  ];
+
+  wsSocios['!cols'] = [
+    { wch: 20 },
+    { wch: 50 },
+    { wch: 40 },
+    { wch: 30 }
+  ];
+
+  XLSX.utils.book_append_sheet(wb, wsEmpresas, 'Empresas');
+  XLSX.utils.book_append_sheet(wb, wsSocios, 'Sócios');
 
   XLSX.writeFile(
     wb,
-    'resultado_completo_' +
+    'Consulta_CNPJ_Completa_' +
     new Date().toISOString().split('T')[0] +
     '.xlsx'
   );
-}
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'CNPJ');
-  XLSX.writeFile(wb, 'resultado_' + new Date().toISOString().split('T')[0] + '.xlsx');
-  bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
-}
 
-function exportJSON() {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' }));
-  a.download = 'resultado_' + new Date().toISOString().split('T')[0] + '.json';
-  a.click();
-  bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+  bootstrap.Modal.getInstance(
+    document.getElementById('exportModal')
+  ).hide();
 }
-
+  
 function exportPDF() {
   let html = '<h1>Relatório CNPJ</h1><table border="1" cellpadding="10" style="width: 100%;">';
   html += '<tr><th>CNPJ</th><th>Razão Social</th><th>Situação</th><th>Porte</th><th>UF</th></tr>';
