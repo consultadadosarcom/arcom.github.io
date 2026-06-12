@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ARCOM SA - Verificador CNPJ Moderno | Criado por João Lucas</title>
+  <title>ARCOM SA - Verificador CNPJ | Criado por João Lucas</title>
   
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,11 +11,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   
   <!-- Chart.js, XLSX, html2pdf -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -52,119 +47,6 @@
     body.dark-mode {
       background: var(--dark);
       color: #e2e8f0;
-    }
-
-    /* ===== AUTH SCREEN ===== */
-    .auth-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-      padding: 20px;
-    }
-
-    .auth-card {
-      background: white;
-      border-radius: 16px;
-      padding: 40px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-      animation: slideUp 0.5s ease;
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .auth-logo {
-      width: 60px;
-      height: 60px;
-      background: var(--primary);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 28px;
-      color: white;
-    }
-
-    .auth-card h1 {
-      font-size: 28px;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 8px;
-      color: var(--dark);
-    }
-
-    .auth-subtitle {
-      text-align: center;
-      color: var(--text-light);
-      font-size: 14px;
-      margin-bottom: 30px;
-    }
-
-    .form-control {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 14px;
-      transition: all 0.3s;
-    }
-
-    .form-control:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
-    }
-
-    .btn {
-      border-radius: 8px;
-      font-weight: 600;
-      padding: 10px 16px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(0, 102, 255, 0.25);
-    }
-
-    .btn-outline-secondary {
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text);
-    }
-
-    .btn-outline-secondary:hover {
-      background: var(--light);
-      border-color: var(--primary);
-    }
-
-    .link-primary {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .link-primary:hover {
-      text-decoration: underline;
     }
 
     /* ===== NAVBAR ===== */
@@ -334,42 +216,16 @@
       letter-spacing: 0.5px;
     }
 
-    .stat-mini.stat-success {
-      border-top: 3px solid var(--success);
-    }
-
-    .stat-mini.stat-warning {
-      border-top: 3px solid var(--warning);
-    }
-
-    .stat-mini.stat-danger {
-      border-top: 3px solid var(--danger);
-    }
-
-    .stat-mini.stat-info {
-      border-top: 3px solid var(--info);
-    }
+    .stat-mini.stat-success { border-top: 3px solid var(--success); }
+    .stat-mini.stat-warning { border-top: 3px solid var(--warning); }
+    .stat-mini.stat-danger  { border-top: 3px solid var(--danger); }
+    .stat-mini.stat-info    { border-top: 3px solid var(--info); }
 
     /* ===== BADGES ===== */
-    .badge-ativa {
-      background: #d1f3d1;
-      color: #1d7918;
-    }
-
-    .badge-inapta {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .badge-baixada {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .badge-suspensa {
-      background: #cffafe;
-      color: #0c4a6e;
-    }
+    .badge-ativa    { background: #d1f3d1; color: #1d7918; }
+    .badge-inapta   { background: #fef3c7; color: #92400e; }
+    .badge-baixada  { background: #fee2e2; color: #991b1b; }
+    .badge-suspensa { background: #cffafe; color: #0c4a6e; }
 
     /* ===== PROGRESS ===== */
     .progress {
@@ -378,9 +234,7 @@
       overflow: hidden;
     }
 
-    body.dark-mode .progress {
-      background: #334155;
-    }
+    body.dark-mode .progress { background: #334155; }
 
     .progress-bar {
       background: linear-gradient(90deg, var(--primary), var(--info));
@@ -389,34 +243,19 @@
     }
 
     /* ===== TABLE ===== */
-    .table {
-      color: var(--text);
-    }
+    .table { color: var(--text); }
+    .table thead { background: var(--light); }
 
-    .table thead {
-      background: var(--light);
-    }
-
-    body.dark-mode .table {
-      color: #e2e8f0;
-    }
-
-    body.dark-mode .table thead {
-      background: #0f172a;
-    }
+    body.dark-mode .table { color: #e2e8f0; }
+    body.dark-mode .table thead { background: #0f172a; }
 
     .table tbody tr {
       border-bottom: 1px solid var(--border);
       transition: all 0.3s;
     }
 
-    .table tbody tr:hover {
-      background: var(--light);
-    }
-
-    body.dark-mode .table tbody tr:hover {
-      background: #1e293b;
-    }
+    .table tbody tr:hover { background: var(--light); }
+    body.dark-mode .table tbody tr:hover { background: #1e293b; }
 
     /* ===== MODAL DETALHES ===== */
     .modal-details-header {
@@ -437,9 +276,7 @@
       border-bottom: 1px solid var(--border);
     }
 
-    .details-section:last-child {
-      border-bottom: none;
-    }
+    .details-section:last-child { border-bottom: none; }
 
     .details-section h6 {
       font-weight: 700;
@@ -463,9 +300,7 @@
       font-size: 13px;
     }
 
-    body.dark-mode .detail-label {
-      color: #cbd5e1;
-    }
+    body.dark-mode .detail-label { color: #cbd5e1; }
 
     .detail-value {
       color: var(--text-light);
@@ -473,9 +308,7 @@
       word-break: break-word;
     }
 
-    body.dark-mode .detail-value {
-      color: #94a3b8;
-    }
+    body.dark-mode .detail-value { color: #94a3b8; }
 
     .socios-grid {
       display: grid;
@@ -502,9 +335,7 @@
       font-size: 14px;
     }
 
-    body.dark-mode .socio-card strong {
-      color: #90caf9;
-    }
+    body.dark-mode .socio-card strong { color: #90caf9; }
 
     .socio-card small {
       color: var(--text-light);
@@ -521,6 +352,24 @@
       background: #1e293b;
       border-color: #334155;
     }
+
+    /* ===== HISTORY ===== */
+    .history-item {
+      cursor: pointer;
+      font-size: 12px;
+      margin: 6px 0;
+      padding: 6px;
+      border-radius: 4px;
+      background: var(--light);
+      transition: all 0.2s;
+    }
+
+    .history-item:hover {
+      background: #e0eaff;
+    }
+
+    body.dark-mode .history-item { background: #0f172a; }
+    body.dark-mode .history-item:hover { background: #1e3a5f; }
 
     /* ===== FOOTER ===== */
     footer {
@@ -556,88 +405,23 @@
       display: inline-block;
     }
 
-    body.dark-mode .footer-signature {
-      background: rgba(0, 102, 255, 0.1);
-    }
+    body.dark-mode .footer-signature { background: rgba(0, 102, 255, 0.1); }
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-      .hero-section h1 {
-        font-size: 24px;
-      }
-
-      .auth-card {
-        padding: 30px 20px;
-      }
-
-      .nav-buttons {
-        gap: 4px;
-      }
-
-      .nav-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-      }
-
-      .detail-row {
-        grid-template-columns: 1fr;
-        gap: 5px;
-      }
-
-      .socios-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .footer-signature {
-        font-size: 12px;
-      }
+      .hero-section h1 { font-size: 24px; }
+      .nav-buttons { gap: 4px; }
+      .nav-btn { width: 32px; height: 32px; font-size: 14px; }
+      .detail-row { grid-template-columns: 1fr; gap: 5px; }
+      .socios-grid { grid-template-columns: 1fr; }
+      .footer-signature { font-size: 12px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ===== AUTH SCREEN ===== -->
-<div id="authScreen" class="auth-wrapper">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <i class="fas fa-search"></i>
-    </div>
-    <h1>ARCOM SA</h1>
-    <p class="auth-subtitle">Verificador CNPJ Premium</p>
-
-    <div id="loginForm">
-      <input type="email" id="loginEmail" class="form-control mb-3" placeholder="Email" autocomplete="email">
-      <input type="password" id="loginPassword" class="form-control mb-3" placeholder="Senha" autocomplete="current-password">
-      <button class="btn btn-primary w-100 mb-2" onclick="login()">
-        <i class="fas fa-sign-in-alt"></i> Entrar
-      </button>
-      <button class="btn btn-outline-secondary w-100 mb-3" onclick="loginGoogle()">
-        <i class="fab fa-google"></i> Login com Google
-      </button>
-      <p class="text-center" style="font-size: 14px; color: var(--text-light);">
-        Não tem conta? <a href="#" onclick="showRegister(); return false;" class="link-primary">Criar conta</a>
-      </p>
-    </div>
-
-    <div id="registerForm" style="display: none;">
-      <input type="email" id="registerEmail" class="form-control mb-3" placeholder="Email" autocomplete="email">
-      <input type="text" id="registerName" class="form-control mb-3" placeholder="Seu nome">
-      <input type="password" id="registerPassword" class="form-control mb-3" placeholder="Senha" autocomplete="new-password">
-      <button class="btn btn-primary w-100 mb-2" onclick="register()">
-        <i class="fas fa-user-plus"></i> Criar Conta
-      </button>
-      <p class="text-center" style="font-size: 14px; color: var(--text-light);">
-        Já tem conta? <a href="#" onclick="showLogin(); return false;" class="link-primary">Fazer login</a>
-      </p>
-    </div>
-
-    <div id="errorMsg" style="display: none; padding: 12px; background: #fee2e2; border: 1px solid #fecaca; color: #991b1b; border-radius: 8px; font-size: 14px; margin-top: 16px;"></div>
-  </div>
-</div>
-
 <!-- ===== MAIN APP ===== -->
-<div id="mainApp" style="display: none;">
+<div id="mainApp">
   <!-- Navbar -->
   <nav class="navbar sticky-top">
     <div class="container-fluid px-4">
@@ -645,21 +429,11 @@
         <i class="fas fa-search"></i> Tool made by João - ARCOM SA
       </a>
       <div class="nav-buttons">
-        <span style="font-size: 14px; color: var(--text-light); margin-right: 8px;" id="userDisplay"></span>
         <button class="nav-btn" onclick="toggleDarkMode()" title="Dark Mode">
           <i class="fas fa-moon"></i>
         </button>
-        <button class="nav-btn" onclick="openTeamModal()" title="Equipe">
-          <i class="fas fa-users"></i>
-        </button>
-        <button class="nav-btn" onclick="openAuditModal()" title="Auditoria">
-          <i class="fas fa-clipboard-list"></i>
-        </button>
         <button class="nav-btn" onclick="openSettings()" title="Configurações">
           <i class="fas fa-cog"></i>
-        </button>
-        <button class="nav-btn" style="border-color: var(--danger); color: var(--danger);" onclick="logout()" title="Sair">
-          <i class="fas fa-sign-out-alt"></i>
         </button>
       </div>
     </div>
@@ -720,7 +494,7 @@
             <!-- Input -->
             <div class="card mb-4">
               <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-file-upload"></i> Colocar o CNPJ A Baixo</h5>
+                <h5 class="card-title"><i class="fas fa-file-upload"></i> Colocar o CNPJ Abaixo</h5>
                 <textarea id="input" class="form-control mb-3" placeholder="Cole aqui os CNPJs&#10;Formatos: 12345678000195 ou 12.345.678/0001-95" rows="8"></textarea>
                 <div class="d-grid gap-2">
                   <button class="btn btn-primary" onclick="startVerification()">
@@ -729,7 +503,6 @@
                   <button class="btn btn-outline-secondary" onclick="clearAll()">
                     <i class="fas fa-redo"></i> Limpar
                   </button>
-
                   <button class="btn btn-warning" onclick="copiarCNPJsProblema()">
                     <i class="fas fa-copy"></i> Copiar Inaptos/Suspensos/Baixados
                   </button>
@@ -747,7 +520,7 @@
                 <div id="historyContainer" style="font-size: 12px; color: var(--text-light);">
                   <p>Nenhuma consulta</p>
                 </div>
-                <button class="btn btn-outline-danger btn-sm w-100 mt-3" onclick="clearFirebaseHistory()">
+                <button class="btn btn-outline-danger btn-sm w-100 mt-3" onclick="clearHistory()">
                   <i class="fas fa-trash"></i> Limpar
                 </button>
               </div>
@@ -850,7 +623,7 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title"><i class="fas fa-map-marker-alt"></i> Análise Regional</h5>
-            <p style="color: var(--text-light); margin-bottom: 16px;">Digite um CNPJ para descobrir empresas na região</p>
+            <p style="color: var(--text-light); margin-bottom: 16px;">Digite um CNPJ para ver informações da empresa na região</p>
             <div class="input-group mb-4">
               <input type="text" id="cnpjRegional" class="form-control" placeholder="Digite o CNPJ" autocomplete="off">
               <button class="btn btn-primary" onclick="analyzeRegional()">
@@ -894,7 +667,6 @@
         </div>
       </div>
       <div class="modal-body">
-        <!-- Informações Básicas -->
         <div class="details-section">
           <h6><i class="fas fa-building"></i> Informações Básicas</h6>
           <div class="detail-row">
@@ -923,7 +695,6 @@
           </div>
         </div>
 
-        <!-- Localização -->
         <div class="details-section">
           <h6><i class="fas fa-map-pin"></i> Localização</h6>
           <div class="detail-row">
@@ -940,7 +711,6 @@
           </div>
         </div>
 
-        <!-- Contato -->
         <div class="details-section">
           <h6><i class="fas fa-phone"></i> Contato</h6>
           <div class="detail-row">
@@ -953,7 +723,6 @@
           </div>
         </div>
 
-        <!-- Quadro Societário -->
         <div class="details-section">
           <h6><i class="fas fa-users"></i> Quadro Societário</h6>
           <div id="detailSocios"></div>
@@ -969,7 +738,6 @@
   </div>
 </div>
 
-<!-- ===== MODALS AUXILIARES ===== -->
 <!-- Export Modal -->
 <div class="modal fade" id="exportModal" tabindex="-1">
   <div class="modal-dialog">
@@ -985,50 +753,6 @@
           <button class="btn btn-outline-primary" onclick="exportJSON()"><i class="fas fa-file-code"></i> JSON</button>
           <button class="btn btn-outline-primary" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Team Modal -->
-<div class="modal fade" id="teamModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-users"></i> Gerenciador de Equipe</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <h6 class="mb-3">Convidar Membro</h6>
-        <div class="input-group mb-2">
-          <input type="email" id="inviteEmail" class="form-control" placeholder="email@empresa.com">
-          <select id="roleSelect" class="form-select" style="max-width: 150px;">
-            <option value="viewer">Viewer</option>
-            <option value="manager">Manager</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-        <button class="btn btn-primary w-100 mb-4" onclick="inviteTeamMember()">
-          <i class="fas fa-paper-plane"></i> Convidar
-        </button>
-        <hr>
-        <h6 class="mb-3">Membros</h6>
-        <div id="teamList"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Audit Modal -->
-<div class="modal fade" id="auditModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-clipboard-list"></i> Log de Auditoria</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div id="auditLog" style="max-height: 400px; overflow-y: auto;"></div>
       </div>
     </div>
   </div>
@@ -1067,154 +791,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// ====== FIREBASE CONFIG ======
-const firebaseConfig = {
-  apiKey: "AIzaSyDPIZIPl9zlQW1xUptgP4OlJkiTlFEnN4g",
-  authDomain: "consulta-cnpj-efe7c.firebaseapp.com",
-  databaseURL: "https://consulta-cnpj-efe7c-default-rtdb.firebaseio.com",
-  projectId: "consulta-cnpj-efe7c",
-  storageBucket: "consulta-cnpj-efe7c.firebasestorage.app",
-  messagingSenderId: "978339964025",
-  appId: "1:978339964025:web:c303d79519cc37efc720a8",
-  measurementId: "G-Z8J38Y2Z59"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
 // ====== GLOBAL VARS ======
 const norm = s => s.replace(/\D/g, '');
 let rows = [];
 let allData = {};
 let selectedAPI = 'brasilapi';
 let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+let history = JSON.parse(localStorage.getItem('cnpjHistory')) || [];
 let chart = null;
-let currentUser = null;
-let currentRole = 'viewer';
-let currentTeamId = null;
 let currentDetailsCNPJ = null;
-
-// ====== AUTH ======
-function showLogin() {
-  document.getElementById('loginForm').style.display = 'block';
-  document.getElementById('registerForm').style.display = 'none';
-}
-
-function showRegister() {
-  document.getElementById('loginForm').style.display = 'none';
-  document.getElementById('registerForm').style.display = 'block';
-}
-
-function login() {
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
-
-  if (!email || !password) {
-    showError('Digite email e senha');
-    return;
-  }
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
-      document.getElementById('authScreen').style.display = 'none';
-      document.getElementById('mainApp').style.display = 'block';
-      loadUserData();
-    })
-    .catch(e => showError(e.message));
-}
-
-function register() {
-  const email = document.getElementById('registerEmail').value;
-  const password = document.getElementById('registerPassword').value;
-  const name = document.getElementById('registerName').value;
-
-  if (!email || !password || !name) {
-    showError('Preencha todos os campos');
-    return;
-  }
-
-  if (password.length < 6) {
-    showError('Senha deve ter no mínimo 6 caracteres');
-    return;
-  }
-
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(result => {
-      result.user.updateProfile({ displayName: name });
-      db.collection('usuarios').doc(result.user.uid).set({
-        nome: name,
-        email: email,
-        role: 'viewer',
-        equipe_id: result.user.uid,
-        criadoEm: new Date()
-      });
-      showError('✅ Conta criada! Fazendo login...');
-      setTimeout(() => showLogin(), 2000);
-    })
-    .catch(e => showError(e.message));
-}
-
-function loginGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(() => {
-      document.getElementById('authScreen').style.display = 'none';
-      document.getElementById('mainApp').style.display = 'block';
-      loadUserData();
-    })
-    .catch(e => showError('Erro: ' + e.message));
-}
-
-function logout() {
-  auth.signOut().then(() => {
-    document.getElementById('mainApp').style.display = 'none';
-    document.getElementById('authScreen').style.display = 'flex';
-    showLogin();
-    clearAll();
-  });
-}
-
-function showError(msg) {
-  const el = document.getElementById('errorMsg');
-  if (el) {
-    el.textContent = msg;
-    el.style.display = 'block';
-    setTimeout(() => el.style.display = 'none', 4000);
-  }
-}
-
-async function loadUserData() {
-  currentUser = auth.currentUser;
-  const userDisplay = document.getElementById('userDisplay');
-  if (userDisplay) {
-    userDisplay.textContent = `👤 ${currentUser.displayName || currentUser.email}`;
-  }
-
-  try {
-    const userDoc = await db.collection('usuarios').doc(currentUser.uid).get();
-    if (userDoc.exists) {
-      currentRole = userDoc.data().role;
-      currentTeamId = userDoc.data().equipe_id;
-    }
-  } catch (e) {
-    console.error('Erro:', e);
-  }
-
-  loadFirebaseHistory();
-}
-
-auth.onAuthStateChanged(user => {
-  if (user) {
-    currentUser = user;
-    document.getElementById('authScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    loadUserData();
-  } else {
-    document.getElementById('authScreen').style.display = 'flex';
-    document.getElementById('mainApp').style.display = 'none';
-  }
-});
 
 // ====== DARK MODE ======
 function toggleDarkMode() {
@@ -1226,7 +811,40 @@ window.addEventListener('load', () => {
   if (localStorage.getItem('darkMode') === 'true') {
     document.body.classList.add('dark-mode');
   }
+  renderHistory();
 });
+
+// ====== HISTORY (localStorage) ======
+function addToHistory(cnpj, razao) {
+  history = history.filter(h => h.cnpj !== cnpj);
+  history.unshift({ cnpj, razao });
+  if (history.length > 20) history = history.slice(0, 20);
+  localStorage.setItem('cnpjHistory', JSON.stringify(history));
+  renderHistory();
+}
+
+function renderHistory() {
+  const container = document.getElementById('historyContainer');
+  if (!container) return;
+
+  if (!history.length) {
+    container.innerHTML = '<p>Nenhuma consulta</p>';
+    return;
+  }
+
+  container.innerHTML = history.slice(0, 10).map(h => `
+    <p class="history-item" onclick="document.getElementById('input').value='${h.cnpj}';startVerification()">
+      <strong>${fmt(h.cnpj)}</strong> - ${h.razao}
+    </p>
+  `).join('');
+}
+
+function clearHistory() {
+  if (!confirm('Limpar histórico?')) return;
+  history = [];
+  localStorage.removeItem('cnpjHistory');
+  renderHistory();
+}
 
 // ====== CNPJ FUNCTIONS ======
 function isValidCNPJ(cnpj) {
@@ -1321,15 +939,10 @@ function parseCNPJs(text) {
 }
 
 function updateStats(t, b, i, s) {
-  const statTotal = document.getElementById('statTotal');
-  const statBaixada = document.getElementById('statBaixada');
-  const statInapta = document.getElementById('statInapta');
-  const statSuspensa = document.getElementById('statSuspensa');
-  
-  if (statTotal) statTotal.textContent = t;
-  if (statBaixada) statBaixada.textContent = b;
-  if (statInapta) statInapta.textContent = i;
-  if (statSuspensa) statSuspensa.textContent = s;
+  document.getElementById('statTotal').textContent = t;
+  document.getElementById('statBaixada').textContent = b;
+  document.getElementById('statInapta').textContent = i;
+  document.getElementById('statSuspensa').textContent = s;
 }
 
 function badgeClass(sit) {
@@ -1344,17 +957,11 @@ function renderSociosHTML(socios) {
   if (!socios || socios.length === 0) {
     return '<p style="color: var(--text-light);">Quadro societário não disponível</p>';
   }
-
   let html = '<div class="socios-grid">';
   socios.forEach(s => {
     const nome = s.nome_socio || s.nome || 'Não informado';
     const qualificacao = s.qualificacao_socio || s.qualificacao || 'Não informada';
-    html += `
-      <div class="socio-card">
-        <strong>👤 ${nome}</strong>
-        <small><strong>Qualificação:</strong> ${qualificacao}</small>
-      </div>
-    `;
+    html += `<div class="socio-card"><strong>👤 ${nome}</strong><small><strong>Qualificação:</strong> ${qualificacao}</small></div>`;
   });
   html += '</div>';
   return html;
@@ -1366,10 +973,9 @@ async function startVerification() {
   rows = [];
   allData = {};
   const list = parseCNPJs(document.getElementById('input').value);
-  
+
   if (!list.length) {
-    const status = document.getElementById('status');
-    if (status) status.textContent = '⚠ Nenhum CNPJ encontrado';
+    document.getElementById('status').textContent = '⚠ Nenhum CNPJ encontrado';
     return;
   }
 
@@ -1377,13 +983,9 @@ async function startVerification() {
 
   for (let n = 0; n < list.length; n++) {
     const cnpj = list[n];
-    const status = document.getElementById('status');
-    const barFill = document.getElementById('barFill');
-    const percentage = document.getElementById('percentage');
-    
-    if (status) status.textContent = `⏳ Consultando ${fmt(cnpj)} (${n + 1}/${list.length})`;
-    if (barFill) barFill.style.width = ((n / list.length) * 100) + '%';
-    if (percentage) percentage.textContent = Math.round((n / list.length) * 100) + '%';
+    document.getElementById('status').textContent = `⏳ Consultando ${fmt(cnpj)} (${n + 1}/${list.length})`;
+    document.getElementById('barFill').style.width = ((n / list.length) * 100) + '%';
+    document.getElementById('percentage').textContent = Math.round((n / list.length) * 100) + '%';
 
     if (n > 0) await new Promise(r => setTimeout(r, 300));
 
@@ -1411,7 +1013,7 @@ async function startVerification() {
       rows.push([fmt(cnpj), result.razao, result.situacao]);
       const bc = badgeClass(result.situacao);
       const isFav = favorites.includes(cnpj) ? '⭐' : '☆';
-      
+
       tbody.innerHTML += `<tr>
         <td style="cursor: pointer;" onclick="toggleFavorite('${cnpj}', event)">${isFav}</td>
         <td><strong>${fmt(cnpj)}</strong></td>
@@ -1427,6 +1029,7 @@ async function startVerification() {
       </tr>`;
 
       updateStats(total, baix, inap, susp);
+      addToHistory(cnpj, result.razao);
 
     } catch (e) {
       console.error('Erro:', cnpj, e);
@@ -1435,42 +1038,24 @@ async function startVerification() {
     }
   }
 
-  const barFill = document.getElementById('barFill');
-  const percentage = document.getElementById('percentage');
-  const status = document.getElementById('status');
-  
-  if (barFill) barFill.style.width = '100%';
-  if (percentage) percentage.textContent = '100%';
-  if (status) status.textContent = `✓ Concluído — ${total} CNPJs consultados`;
-  
+  document.getElementById('barFill').style.width = '100%';
+  document.getElementById('percentage').textContent = '100%';
+  document.getElementById('status').textContent = `✓ Concluído — ${total} CNPJs consultados`;
   updateChart();
-  const btnExport = document.getElementById('btnExport');
-  if (btnExport) btnExport.style.display = 'inline-block';
-
-  if (currentUser) {
-    loadFirebaseHistory();
-  }
+  document.getElementById('btnExport').classList.remove('d-none');
 }
 
 function openDetailsModal(cnpj) {
   currentDetailsCNPJ = cnpj;
   const data = allData[cnpj];
-  
-  if (!data) {
-    showError('Dados não encontrados');
-    return;
-  }
+  if (!data) return;
 
   const bc = badgeClass(data.situacao);
-
-  // Preencher modal
   document.getElementById('detailCNPJ').textContent = fmt(cnpj);
   document.getElementById('detailRazao').textContent = data.razao;
-  
   const situacaoBadge = document.getElementById('detailSituacao');
   situacaoBadge.textContent = data.situacao;
   situacaoBadge.className = 'badge ' + bc;
-  
   document.getElementById('detailPorte').textContent = data.porte;
   document.getElementById('detailNatureza').textContent = data.natureza;
   document.getElementById('detailAtividade').textContent = data.atividade;
@@ -1483,17 +1068,14 @@ function openDetailsModal(cnpj) {
   document.getElementById('detailEmail').textContent = data.email || '—';
   document.getElementById('detailSocios').innerHTML = renderSociosHTML(data.socios);
 
-  const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
-  modal.show();
+  new bootstrap.Modal(document.getElementById('detailsModal')).show();
 }
 
 function exportDetalhes() {
   if (!currentDetailsCNPJ || !allData[currentDetailsCNPJ]) return;
-
   const data = allData[currentDetailsCNPJ];
   let csv = 'CNPJ,Razão Social,Situação,Porte,UF,Telefone,Email,Endereço\n';
   csv += `"${fmt(currentDetailsCNPJ)}","${data.razao}","${data.situacao}","${data.porte}","${data.uf}","${data.telefone}","${data.email}","${data.endereco}"\n`;
-
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
   a.download = `detalhe_${fmt(currentDetailsCNPJ)}.csv`;
@@ -1503,19 +1085,15 @@ function exportDetalhes() {
 function updateChart() {
   const ctx = document.getElementById('chartSituacao');
   if (!ctx) return;
-  
-  const ctxContext = ctx.getContext('2d');
   const stats = { ATIVA: 0, INAPTA: 0, BAIXADA: 0, SUSPENSA: 0 };
-  
   Object.values(allData).forEach(d => {
     if (d.situacao.includes('ATIVA')) stats.ATIVA++;
     else if (d.situacao.includes('INAPTA')) stats.INAPTA++;
     else if (d.situacao.includes('BAIXADA')) stats.BAIXADA++;
     else if (d.situacao.includes('SUSPENSA')) stats.SUSPENSA++;
   });
-
   if (chart) chart.destroy();
-  chart = new Chart(ctxContext, {
+  chart = new Chart(ctx.getContext('2d'), {
     type: 'doughnut',
     data: {
       labels: ['Ativas', 'Inaptas', 'Baixadas', 'Suspensas'],
@@ -1539,92 +1117,36 @@ function toggleFavorite(cnpj, e) {
 }
 
 function clearAll() {
-  const input = document.getElementById('input');
-  const tbody = document.getElementById('tbody');
-  const btnExport = document.getElementById('btnExport');
-  const barFill = document.getElementById('barFill');
-  const percentage = document.getElementById('percentage');
-  const status = document.getElementById('status');
-  
-  if (input) input.value = '';
-  if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-light); padding: 32px;">Nenhuma consulta realizada</td></tr>';
-  if (btnExport) btnExport.style.display = 'none';
+  document.getElementById('input').value = '';
+  document.getElementById('tbody').innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-light); padding: 32px;">Nenhuma consulta realizada</td></tr>';
+  document.getElementById('btnExport').classList.add('d-none');
   updateStats(0, 0, 0, 0);
-  if (barFill) barFill.style.width = '0%';
-  if (percentage) percentage.textContent = '0%';
-  if (status) status.textContent = 'Aguardando entrada...';
+  document.getElementById('barFill').style.width = '0%';
+  document.getElementById('percentage').textContent = '0%';
+  document.getElementById('status').textContent = 'Aguardando entrada...';
+  allData = {};
+  rows = [];
 }
 
 function copiarCNPJsProblema() {
   const cnpjsProblema = [];
-
   for (const cnpj in allData) {
     const situacao = (allData[cnpj].situacao || '').toUpperCase();
-
-    if (
-      situacao.includes('INAPTA') ||
-      situacao.includes('SUSPENSA') ||
-      situacao.includes('BAIXADA')
-    ) {
+    if (situacao.includes('INAPTA') || situacao.includes('SUSPENSA') || situacao.includes('BAIXADA')) {
       cnpjsProblema.push(cnpj.replace(/\D/g, ''));
     }
   }
-
   if (!cnpjsProblema.length) {
     alert('Nenhum CNPJ inapto, suspenso ou baixado encontrado.');
     return;
   }
-
   navigator.clipboard.writeText(cnpjsProblema.join('\n'))
-    .then(() => {
-      alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`);
-    })
-    .catch(() => {
-      alert('Erro ao copiar.');
-    });
-}
-
-async function loadFirebaseHistory() {
-  if (!currentUser) return;
-  
-  try {
-    const snapshot = await db.collection('usuarios').doc(currentUser.uid).collection('consultas')
-      .orderBy('timestamp', 'desc')
-      .limit(10)
-      .get();
-
-    let html = '';
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      html += `<p style="cursor: pointer; font-size: 12px; margin: 6px 0; padding: 6px; border-radius: 4px; background: var(--light); transition: all 0.2s;" onclick="document.getElementById('input').value='${data.cnpj}';startVerification()">
-        <strong>${fmt(data.cnpj)}</strong> - ${data.razao}
-      </p>`;
-    });
-
-    const historyContainer = document.getElementById('historyContainer');
-    if (historyContainer) {
-      historyContainer.innerHTML = html || '<p>Nenhuma consulta</p>';
-    }
-  } catch (e) {
-    console.error('Erro:', e);
-  }
-}
-
-async function clearFirebaseHistory() {
-  if (!currentUser || !confirm('Limpar histórico?')) return;
-  
-  try {
-    const snapshot = await db.collection('usuarios').doc(currentUser.uid).collection('consultas').get();
-    snapshot.forEach(doc => doc.ref.delete());
-    loadFirebaseHistory();
-  } catch (e) {
-    console.error('Erro:', e);
-  }
+    .then(() => alert(`✅ ${cnpjsProblema.length} CNPJs copiados!`))
+    .catch(() => alert('Erro ao copiar.'));
 }
 
 function showExportMenu() {
-  const modal = new bootstrap.Modal(document.getElementById('exportModal'));
-  modal.show();
+  new bootstrap.Modal(document.getElementById('exportModal')).show();
 }
 
 function exportCSV() {
@@ -1654,9 +1176,8 @@ function exportExcel() {
 }
 
 function exportJSON() {
-  const json = JSON.stringify(allData, null, 2);
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' }));
   a.download = 'resultado_' + new Date().toISOString().split('T')[0] + '.json';
   a.click();
   bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
@@ -1676,27 +1197,12 @@ function exportPDF() {
   bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
 }
 
-function openTeamModal() {
-  const modal = new bootstrap.Modal(document.getElementById('teamModal'));
-  modal.show();
-}
-
-function openAuditModal() {
-  const modal = new bootstrap.Modal(document.getElementById('auditModal'));
-  modal.show();
-}
-
 function openSettings() {
-  const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
-  modal.show();
-}
-
-function inviteTeamMember() {
-  showError('✅ Convite será enviado em breve!');
+  new bootstrap.Modal(document.getElementById('settingsModal')).show();
 }
 
 function saveColumnSettings() {
-  // Placeholder
+  // Placeholder para futuras implementações
 }
 
 async function analyzeRegional() {
@@ -1713,15 +1219,13 @@ async function analyzeRegional() {
   try {
     const r = await fetch('https://brasilapi.com.br/api/cnpj/v1/' + input);
     const empresa = await r.json();
-
     const cidade = empresa.municipio;
     const uf = empresa.uf;
 
-    let html = `<div class="alert alert-info">
-      <strong>Empresa consultada:</strong> ${empresa.razao_social} - ${cidade}/${uf}
-    </div>`;
-
-    html += `
+    el.innerHTML = `
+      <div class="alert alert-info">
+        <strong>Empresa consultada:</strong> ${empresa.razao_social} - ${cidade}/${uf}
+      </div>
       <div class="card">
         <div class="card-body">
           <h5>${empresa.razao_social || 'Empresa'}</h5>
@@ -1731,14 +1235,10 @@ async function analyzeRegional() {
           <p><strong>Endereço:</strong> ${empresa.logradouro || '—'}, ${empresa.numero || '—'}</p>
         </div>
       </div>`;
-
-    el.innerHTML = html;
-
   } catch (e) {
     el.innerHTML = `<div class="alert alert-danger">Erro: ${e.message}</div>`;
   }
 }
-
 </script>
 
 </body>
