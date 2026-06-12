@@ -1163,11 +1163,62 @@ function exportCSV() {
 }
 
 function exportExcel() {
-  const data = [['CNPJ', 'Razão Social', 'Situação', 'Porte', 'UF', 'Telefone', 'Email']];
+  const data = [[
+    'CNPJ',
+    'Razão Social',
+    'Nome Fantasia',
+    'Situação',
+    'Porte',
+    'Natureza Jurídica',
+    'Atividade Principal',
+    'Data Início',
+    'Capital Social',
+    'Endereço',
+    'CEP',
+    'UF',
+    'Telefone',
+    'Email',
+    'Sócios',
+    'API'
+  ]];
+
   for (const cnpj in allData) {
     const d = allData[cnpj];
-    data.push([fmt(cnpj), d.razao, d.situacao, d.porte, d.uf, d.telefone, d.email]);
+
+    data.push([
+      fmt(cnpj),
+      d.razao,
+      d.nomeFantasia,
+      d.situacao,
+      d.porte,
+      d.natureza,
+      d.atividade,
+      d.dataInicio,
+      d.capitalSocial,
+      d.endereco,
+      d.cep,
+      d.uf,
+      d.telefone,
+      d.email,
+      (d.socios || [])
+        .map(s => s.nome_socio || s.nome)
+        .join(' | '),
+      d.api
+    ]);
   }
+
+  const ws = XLSX.utils.aoa_to_sheet(data);
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'CNPJ');
+
+  XLSX.writeFile(
+    wb,
+    'resultado_completo_' +
+    new Date().toISOString().split('T')[0] +
+    '.xlsx'
+  );
+}
   const ws = XLSX.utils.aoa_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'CNPJ');
