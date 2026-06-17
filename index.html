@@ -9,6 +9,51 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+let prospeccaoCNPJs = [];
+
+async function buscarProspeccao(){
+ const cidade=document.getElementById('prosCidade').value.trim();
+ const uf=document.getElementById('prosUF').value.trim();
+ const cnae=document.getElementById('prosCNAE').value;
+ const limite=parseInt(document.getElementById('prosLimite').value)||15;
+ const resultado=document.getElementById('prosResultado');
+ resultado.innerHTML='<p>Buscando empresas...</p>';
+ try{
+   const response=await fetch('https://api.casadosdados.com.br/v5/cnpj/pesquisa',{
+     method:'POST',
+     headers:{'Content-Type':'application/json','api-key':'1568eb93a256be498dc0ee4f6913b464574cb0ca5ade128daf00e02d9cf4c33fa6f5963398247a4b57c674377a626b3897d0152f6ef88c7a688ce505eb246a23'},
+     body:JSON.stringify({
+       codigo_atividade_principal:[cnae],
+       municipio:[cidade.toLowerCase()],
+       uf:[uf.toLowerCase()],
+       situacao_cadastral:['ATIVA'],
+       limite:limite,
+       pagina:1
+     })
+   });
+   const data=await response.json();
+   const empresas=data.cnpjs||data.data||[];
+   prospeccaoCNPJs=[];
+   let h='<table style="width:100%"><thead><tr><th>CNPJ</th><th>Razão Social</th></tr></thead><tbody>';
+   empresas.forEach(emp=>{
+      const cnpj=(emp.cnpj||'').replace(/\D/g,'');
+      prospeccaoCNPJs.push(cnpj);
+      h+=`<tr><td>${cnpj}</td><td>${emp.razao_social||'-'}</td></tr>`;
+   });
+   h+='</tbody></table>';
+   resultado.innerHTML=h;
+ }catch(e){resultado.innerHTML='<p>Erro ao consultar Casa dos Dados.</p>';}
+}
+function copiarProspeccao(){
+ if(!prospeccaoCNPJs.length){alert('Nenhum CNPJ encontrado.');return;}
+ navigator.clipboard.writeText(prospeccaoCNPJs.join('\n'));
+ alert(`${prospeccaoCNPJs.length} CNPJs copiados`);
+}
+
+</script>
+</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
@@ -666,6 +711,9 @@
     <div class="nav-item" onclick="showTab('regional', this)">
       <i class="fas fa-map-marker-alt"></i> Análise Regional
     </div>
+    <div class="nav-item" onclick="showTab('prospeccao', this)">
+      <i class="fas fa-bullseye"></i> Prospecção
+    </div>
 
     <div class="sidebar-label" style="margin-top:20px">Fonte de Dados</div>
     <div class="api-select">
@@ -840,7 +888,35 @@ Formatos aceitos: 12345678000195 ou 12.345.678/0001-95"></textarea>
         <div class="regional-grid" id="regionalGrid"></div>
       </div>
 
+
     </div><!-- /tab-regional -->
+
+    <div class="tab-panel" id="tab-prospeccao">
+      <div class="card">
+        <h2>Prospecção por Cidade e Ramo</h2>
+        <div style="display:grid;grid-template-columns:1fr 100px 1fr 120px;gap:12px;margin-top:15px">
+          <input id="prosCidade" class="regional-input" placeholder="Cidade">
+          <input id="prosUF" class="regional-input" placeholder="UF">
+          <select id="prosCNAE" class="regional-input">
+            <option value="4711302">Supermercado</option>
+            <option value="4771701">Farmácia</option>
+            <option value="5611201">Restaurante</option>
+            <option value="4520001">Oficina Mecânica</option>
+            <option value="4744099">Material Construção</option>
+            <option value="4530703">Auto Peças</option>
+          </select>
+          <input id="prosLimite" class="regional-input" type="number" value="15" min="1" max="100">
+        </div>
+        <button class="btn btn-primary" style="margin-top:15px" onclick="buscarProspeccao()">
+          <i class="fas fa-search"></i> Buscar Empresas
+        </button>
+        <button class="btn btn-success-outline" style="margin-top:15px" onclick="copiarProspeccao()">
+          <i class="fas fa-copy"></i> Copiar CNPJs
+        </button>
+        <div id="prosResultado" style="margin-top:20px"></div>
+      </div>
+    </div>
+
 
     <div class="footer">
       <span>© 2026 ARCOM SA</span>
