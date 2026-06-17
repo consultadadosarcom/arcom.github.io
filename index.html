@@ -17,6 +17,23 @@ async function buscarProspeccao(){
  const cidade=document.getElementById('prosCidade').value.trim();
  const uf=document.getElementById('prosUF').value.trim();
  const cnae=document.getElementById('prosCNAE').value;
+  let cnaesBusca = [cnae];
+
+if(cnae === "MISTO"){
+
+    cnaesBusca = [
+        "4711302",
+        "4771701",
+        "5611201",
+        "4520001",
+        "4789004",
+        "4761003",
+        "4731800",
+        "4721102",
+        "8630503",
+        "6821801"
+    ];
+}
  const limite=parseInt(document.getElementById('prosLimite').value)||15;
  const resultado=document.getElementById('prosResultado');
  resultado.innerHTML='<p>Buscando empresas...</p>';
@@ -25,7 +42,7 @@ async function buscarProspeccao(){
      method:'POST',
      headers:{'Content-Type':'application/json','api-key':'1568eb93a256be498dc0ee4f6913b464574cb0ca5ade128daf00e02d9cf4c33fa6f5963398247a4b57c674377a626b3897d0152f6ef88c7a688ce505eb246a23'},
      body:JSON.stringify({
-       codigo_atividade_principal:[cnae],
+       codigo_atividade_principal:cnaesBusca,
        municipio:[cidade.toLowerCase()],
        uf:[uf.toLowerCase()],
        situacao_cadastral:['ATIVA'],
@@ -904,6 +921,39 @@ Formatos aceitos: 12345678000195 ou 12.345.678/0001-95"></textarea>
             <option value="4520001">Oficina Mecânica</option>
             <option value="4744099">Material Construção</option>
             <option value="4530703">Auto Peças</option>
+            <option value="4721102">Padaria</option>
+            <option value="4722901">Açougue</option>
+            <option value="4711302">Mercado</option>
+            <option value="4635403">Distribuidora de Bebidas</option>
+            <option value="5510801">Hotel</option>
+            <option value="5590603">Pousada</option>
+            <option value="9313100">Academia</option>
+            <option value="4761003">Papelaria</option>
+            <option value="4751201">Loja de Informática</option>
+            <option value="4752100">Loja de Celular</option>
+            <option value="4781400">Loja de Roupas</option>
+            <option value="4782201">Loja de Calçados</option>
+            <option value="8599601">Auto Escola</option>
+            <option value="4930202">Transportadora</option>
+            <option value="4731800">Posto de Combustível</option>
+            <option value="4520006">Borracharia</option>
+            <option value="4520001">Mecânica</option>
+            <option value="4520002">Funilaria</option>
+            <option value="8630504">Dentista</option>
+            <option value="8630503">Clínica Médica</option>
+            <option value="8640202">Laboratório</option>
+            <option value="7500100">Veterinária</option>
+            <option value="4789004">Pet Shop</option>
+            <option value="4120400">Construtora</option>
+            <option value="6821801">Imobiliária</option>
+            <option value="6920601">Contabilidade</option>
+            <option value="6911701">Advocacia</option>
+            <option value="1813001">Gráfica</option>
+            <option value="4729699">Sorveteria</option>
+            <option value="5611203">Lanchonete</option>
+            <option value="5611204">Pizzaria</option>
+            <option value="5611203">Hamburgueria</option>
+            <option value="MISTO">Misto (Ramos Diversos)</option>
           </select>
           <input id="prosLimite" class="regional-input" type="number" value="15" min="1" max="100">
         </div>
