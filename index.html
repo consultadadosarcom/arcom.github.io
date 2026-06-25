@@ -40,7 +40,7 @@ if(cnae === "MISTO"){
  try{
    const response=await fetch('https://api.casadosdados.com.br/v5/cnpj/pesquisa',{
      method:'POST',
-     headers:{'Content-Type':'application/json','api-key':'1568eb93a256be498dc0ee4f6913b464574cb0ca5ade128daf00e02d9cf4c33fa6f5963398247a4b57c674377a626b3897d0152f6ef88c7a688ce505eb246a23'},
+     headers:{'Content-Type':'application/json','api-key':'337366889483241a1d1f7cdb8b25986564ef64c661ca8c6798fc76434fffe339fa15d1e851f12fbba338d4493f09e183581e13ec983a19eeb674be7199b532f6'},
      body:JSON.stringify({
        codigo_atividade_principal:cnaesBusca,
        municipio:[cidade.toLowerCase()],
