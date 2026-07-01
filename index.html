@@ -557,33 +557,6 @@ function copiarProspeccao(){
     }
 
     /* ── ENRICH (Insight IA) ── */
-    .decisor-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-left: 3px solid #a855f7;
-      border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      margin-bottom: 8px;
-    }
-    .decisor-card:last-child { margin-bottom: 0; }
-    .decisor-nome { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
-    .decisor-cargo { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
-    .decisor-contatos { display: flex; flex-wrap: wrap; gap: 6px; }
-    .decisor-contatos a, .decisor-contatos span {
-      font-size: 11px;
-      color: var(--text);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 4px 9px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      text-decoration: none;
-      transition: all .2s;
-    }
-    .decisor-contatos a:hover { border-color: #a855f7; color: #c084fc; }
-    .decisor-contatos i { font-size: 10px; }
     .enrich-stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
     .enrich-stat {
       background: var(--surface2);
@@ -1538,14 +1511,6 @@ Formatos aceitos: 12345678000195 ou 12.345.678/0001-95"></textarea>
 
 <script>
 // ── GLOBALS ─────────────────────────────────────────────────────────────────
-// ⚠️ Cole aqui a URL do seu Worker do Cloudflare (veja worker.js para o passo a passo).
-// Sem isso configurado, o botão "Gerar insight" não vai funcionar — o GitHub Pages
-// é hospedagem estática e não pode chamar a API da Groq com segurança direto (a
-// chave ficaria exposta no código-fonte).
-// ═══ VIBE PROSPECTING ═══
-const VIBE_API_KEY = '40a034fd62d249d0bb8704f0da6ae952';
-const VIBE_API_BASE = 'https://api.explorium.ai/v1/businesses/match';
-
 const norm  = s => s.replace(/\D/g,'');
 let rows = [], allData = {}, selectedAPI = 'brasilapi';
 let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
@@ -1970,62 +1935,89 @@ function copiarCNPJsProblema() {
     .catch(()=>alert('Erro ao copiar.'));
 }
 
-// ── INSIGHT COMERCIAL (IA — Groq/Llama, gratuito) ─────────────────────────────
+// ── INSIGHT COMERCIAL (IA — Groq) ─────────────────────────────────────────
 // Gera um resumo/insight comercial usando SOMENTE os dados públicos que já
 // foram consultados na Receita Federal (situação, porte, atividade, sócios,
 // capital social, endereço). A IA nunca busca a web e nunca inventa contato,
 // e-mail ou telefone — só interpreta o que já temos em mãos.
+//
+// ⚠️ Cole aqui a sua chave da API da Groq (console.groq.com/keys).
+// Atenção: como este é um site estático (GitHub Pages), a chave fica visível
+// no código-fonte para quem inspecionar a página. Para uso pessoal/local isso
+// costuma ser aceitável, mas se for publicar para outras pessoas usarem, o
+// ideal é colocar essa chamada atrás de um proxy simples (ex.: Cloudflare
+// Worker) para não expor sua chave.
+const GROQ_API_KEY = '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';
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
 async function consultarInsightIA(cnpj, dadosEmpresa) {
-  try {
-    // Buscar prospects/contatos na empresa
-    const API = "https://api.explorium.ai/v1/businesses/match";
-
-const response = await fetch(
-    "https://corsproxy.io/?" + encodeURIComponent(API),
-    {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${API_KEY}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-    }
-);
-
-    const prospects = await response.json();
-    const contatos = prospects.data || [];
-
-    return {
-      resumo: `${dadosEmpresa.razao} - Porte: ${dadosEmpresa.porte}. Atividade: ${dadosEmpresa.atividade}`,
-      pontos_fortes: [
-        'Empresa regularizada na Receita Federal',
-        `Localizada em ${dadosEmpresa.municipio}/${dadosEmpresa.uf}`,
-        contatos.length > 0 ? `${contatos.length} decisores identificados` : 'Base de contatos disponível'
-      ],
-      sinais_atencao: [
-        dadosEmpresa.situacao.includes('ATIVA') ? '' : '⚠️ Verificar situação cadastral',
-        dadosEmpresa.porte === 'Microempresa' ? 'Operação em escala reduzida' : ''
-      ].filter(x => x),
-      abordagem_sugerida: `Procure pelos decisores: ${contatos.map(c => c.job_title).join(', ') || 'gestores da empresa'}. Abordagem consultiva, focando em ROI.`,
-      perguntas_qualificacao: [
-        'Como está o orçamento para inovação?',
-        'Quais são os principais desafios operacionais?',
-        'Já utiliza solução semelhante?'
-      ],
-      nivel_confianca: 'alto',
-      contatos: contatos.slice(0, 5).map(c => ({
-        nome: c.name || c.full_name || 'Não informado',
-        cargo: c.job_title || 'Cargo não informado',
-        email: c.email || '',
-        linkedin: c.linkedin_url || ''
-      }))
-    };
-  } catch (error) {
-    throw new Error(`Erro ao consultar Vibe: ${error.message}`);
-  }
+  if (!GROQ_API_KEY) {
+  throw new Error('Configure sua chave da Groq na constante GROQ_API_KEY.');
 }
 
+  const prompt = `Você é um analista comercial. Com base SOMENTE nos dados públicos abaixo (Receita Federal), gere um insight comercial para uma abordagem de vendas B2B. Não invente contatos, e-mails, telefones ou qualquer dado que não esteja aqui.
+
+Dados da empresa:
+- Razão Social: ${dadosEmpresa.razao}
+- Nome Fantasia: ${dadosEmpresa.nomeFantasia}
+- Situação Cadastral: ${dadosEmpresa.situacao}
+- Porte: ${dadosEmpresa.porte}
+- Natureza Jurídica: ${dadosEmpresa.natureza}
+- Atividade Principal: ${dadosEmpresa.atividade}
+- Data de Abertura: ${dadosEmpresa.dataInicio}
+- Capital Social: ${dadosEmpresa.capitalSocial}
+- Município/UF: ${dadosEmpresa.municipio}/${dadosEmpresa.uf}
+- Quadro Societário: ${(dadosEmpresa.socios||[]).map(s=>`${s.nome_socio||s.nome||''} (${s.qualificacao_socio||s.qualificacao||''})`).join('; ') || 'não informado'}
+
+Responda ESTRITAMENTE em JSON válido, sem nenhum texto antes ou depois, seguindo este formato exato:
+{
+  "resumo": "resumo de 2-3 frases sobre a empresa e o potencial comercial",
+  "pontos_fortes": ["ponto 1", "ponto 2", "ponto 3"],
+  "sinais_atencao": ["sinal 1", "sinal 2"],
+  "abordagem_sugerida": "sugestão de abordagem comercial em 2-3 frases",
+  "perguntas_qualificacao": ["pergunta 1", "pergunta 2", "pergunta 3"],
+  "nivel_confianca": "alto, médio ou baixo"
+}`;
+
+  const response = await fetch(GROQ_API_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${GROQ_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.4,
+      response_format: { type: 'json_object' }
+    })
+  });
+
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    throw new Error(`Groq HTTP ${response.status} — ${errText.slice(0,200)}`);
+  }
+
+  const data = await response.json();
+  const conteudo = data.choices?.[0]?.message?.content || '{}';
+
+  let parsed;
+  try {
+    parsed = JSON.parse(conteudo);
+  } catch {
+    throw new Error('A IA retornou um JSON inválido.');
+  }
+
+  return {
+    resumo: parsed.resumo || 'Sem resumo disponível.',
+    pontos_fortes: parsed.pontos_fortes || [],
+    sinais_atencao: parsed.sinais_atencao || [],
+    abordagem_sugerida: parsed.abordagem_sugerida || '',
+    perguntas_qualificacao: parsed.perguntas_qualificacao || [],
+    nivel_confianca: parsed.nivel_confianca || '—'
+  };
+}
 
 function renderEnrichBody(cnpj, dados) {
   const semPontos = !dados.pontos_fortes || !dados.pontos_fortes.length;
@@ -2042,24 +2034,6 @@ function renderEnrichBody(cnpj, dados) {
     <p style="font-size:13px;line-height:1.6">${dados.resumo||'Sem resumo disponível.'}</p>
     <div style="margin-top:10px"><span class="badge ${nivelClasse}">Confiança dos dados: ${nivel}</span></div>
   </div>`;
-
-  // CONTATOS ENCONTRADOS
-  if (dados.contatos && dados.contatos.length) {
-    html += `<div class="modal-section">
-      <div class="modal-section-title purple"><i class="fas fa-users"></i> Decisores Encontrados (${dados.contatos.length})</div>
-      <div>`;
-    dados.contatos.forEach(c => {
-      html += `<div class="decisor-card">
-        <div class="decisor-nome">${c.nome}</div>
-        <div class="decisor-cargo">${c.cargo}</div>
-        <div class="decisor-contatos">
-          ${c.email ? `<a href="mailto:${c.email}" title="Enviar email"><i class="fas fa-envelope"></i> ${c.email}</a>` : ''}
-          ${c.linkedin ? `<a href="${c.linkedin}" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i> Perfil</a>` : ''}
-        </div>
-      </div>`;
-    });
-    html += `</div></div>`;
-  }
 
   html += `<div class="modal-section">
     <div class="modal-section-title purple"><i class="fas fa-thumbs-up"></i> Pontos Fortes</div>
@@ -2085,7 +2059,7 @@ function renderEnrichBody(cnpj, dados) {
     </ul>
   </div>`;
 
-  html += `<div class="enrich-source-note"><i class="fas fa-circle-info"></i> Dados enriquecidos via Vibe Prospecting</div>`;
+  html += `<div class="enrich-source-note"><i class="fas fa-circle-info"></i> Insight gerado via Groq (IA) a partir dos dados públicos da Receita Federal</div>`;
 
   return html;
 }
