@@ -2473,12 +2473,10 @@ function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 const firebaseConfig = {
   apiKey: "AIzaSyDPIZIPl9zlQW1xUptgP4OlJkiTlFEnN4g",
   authDomain: "consulta-cnpj-efe7c.firebaseapp.com",
-  databaseURL: "https://consulta-cnpj-efe7c-default-rtdb.firebaseio.com",
   projectId: "consulta-cnpj-efe7c",
   storageBucket: "consulta-cnpj-efe7c.firebasestorage.app",
   messagingSenderId: "978339964025",
-  appId: "1:978339964025:web:c303d79519cc37efc720a8",
-  measurementId: "G-Z8J38Y2Z59"
+  appId: "1:978339964025:web:c303d79519cc37efc720a8"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -2596,7 +2594,12 @@ function atualizarBadge(){
 async function chatEnviar(){
   const input = document.getElementById('chatInput');
   const texto = input.value.trim();
-  if(!texto || !chatUid || !chatNome) return;
+  if(!texto) return;
+  if(!chatUid){
+    alert('Não foi possível conectar ao chat (falha na autenticação Firebase). Veja o console (F12) para detalhes, ou recarregue a página.');
+    return;
+  }
+  if(!chatNome) return;
   const btn = document.getElementById('chatSendBtn');
   btn.disabled = true;
   try{
@@ -2609,7 +2612,7 @@ async function chatEnviar(){
     input.value = '';
   }catch(err){
     console.error('Erro ao enviar mensagem:', err);
-    alert('Não foi possível enviar a mensagem. Tente novamente.');
+    alert('Erro ao enviar mensagem: ' + (err.message || err.code || 'desconhecido'));
   }
   btn.disabled = false;
   input.focus();
