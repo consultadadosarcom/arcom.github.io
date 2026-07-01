@@ -1979,23 +1979,19 @@ function copiarCNPJsProblema() {
 async function consultarInsightIA(cnpj, dadosEmpresa) {
   try {
     // Buscar prospects/contatos na empresa
-    const response = await fetch(`${VIBE_API_BASE}/prospects/search`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${VIBE_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        company: {
-          name: dadosEmpresa.razao,
-          industry: dadosEmpresa.atividade
+    const API = "https://api.explorium.ai/v1/businesses/match";
+
+const response = await fetch(
+    "https://corsproxy.io/?" + encodeURIComponent(API),
+    {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${API_KEY}`,
+            "Content-Type": "application/json"
         },
-        filters: {
-          job_titles: ['CEO', 'Diretor', 'Gerente', 'Proprietário']
-        },
-        limit: 5
-      })
-    });
+        body: JSON.stringify(payload)
+    }
+);
 
     const prospects = await response.json();
     const contatos = prospects.data || [];
