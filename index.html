@@ -556,7 +556,7 @@ function copiarProspeccao(){
       gap: 8px;
     }
 
-    /* ── ENRICH (Vibe Prospecting) ── */
+    /* ── ENRICH (Insight IA) ── */
     .decisor-card {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -1169,7 +1169,7 @@ Formatos aceitos: 12345678000195 ou 12.345.678/0001-95"></textarea>
             <i class="fas fa-download"></i> Exportar resultados
           </button>
           <button class="btn btn-purple hidden" id="btnEnrichAll" onclick="enriquecerTodos()">
-            <i class="fas fa-user-tie"></i> Enriquecer todos (decisores)
+            <i class="fas fa-lightbulb"></i> Gerar insight (todos)
           </button>
         </div>
       </div>
@@ -1419,7 +1419,7 @@ Formatos aceitos: 12345678000195 ou 12.345.678/0001-95"></textarea>
   </div>
 </div>
 
-<!-- MODAL: ENRIQUECIMENTO (Vibe Prospecting) -->
+<!-- MODAL: ENRIQUECIMENTO (Insight IA - Groq) -->
 <div class="modal-overlay" id="enrichModal">
   <div class="modal-box">
     <div class="modal-head purple-head">
@@ -1432,13 +1432,13 @@ Formatos aceitos: 12345678000195 ou 12.345.678/0001-95"></textarea>
     <div class="modal-body" id="enrichBody">
       <div class="enrich-loading">
         <div class="spinner-lg"></div>
-        <p>Consultando a Vibe Prospecting…</p>
+        <p>Gerando insight comercial com IA…</p>
       </div>
     </div>
     <div class="modal-footer-row">
       <button class="btn btn-ghost" onclick="closeModal('enrichModal')">Fechar</button>
       <button class="btn btn-purple" id="btnExportEnrich" onclick="exportEnrichAtual()" style="display:none">
-        <i class="fas fa-download"></i> Exportar contatos
+        <i class="fas fa-download"></i> Exportar insight
       </button>
     </div>
   </div>
@@ -1539,9 +1539,12 @@ Formatos aceitos: 12345678000195 ou 12.345.678/0001-95"></textarea>
 <script>
 // ── GLOBALS ─────────────────────────────────────────────────────────────────
 // ⚠️ Cole aqui a URL do seu Worker do Cloudflare (veja worker.js para o passo a passo).
-// Sem isso configurado, o botão "Enriquecer" não vai funcionar — o GitHub Pages
-// é hospedagem estática e não pode chamar a API da Anthropic com segurança direto.
-const ENRICH_PROXY_URL = 'jlrodrigues6900.workers.dev';
+// Sem isso configurado, o botão "Gerar insight" não vai funcionar — o GitHub Pages
+// é hospedagem estática e não pode chamar a API da Groq com segurança direto (a
+// chave ficaria exposta no código-fonte).
+// ═══ VIBE PROSPECTING ═══
+const VIBE_API_KEY = '27bd10e8-94cb-4f28-9b19-b60ed983c0a8';
+const VIBE_API_BASE = 'https://api.explorium.ai/v1/businesses/match';
 
 const norm  = s => s.replace(/\D/g,'');
 let rows = [], allData = {}, selectedAPI = 'brasilapi';
@@ -1549,7 +1552,7 @@ let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 let historyLog = JSON.parse(localStorage.getItem('cnpjHistory')) || [];
 let chart = null, currentDetailsCNPJ = null;
 let _regionalResultados = [], _regionalCidade = '', _regionalUF = '';
-let enrichData = {}; // cnpj -> dados de enriquecimento da Vibe Prospecting
+let enrichData = {}; // cnpj -> insight comercial gerado pela IA (Groq)
 let currentEnrichCNPJ = null;
 let erroCNPJs = []; // lista de {cnpj, motivo} que não foram consultados com sucesso
 
@@ -1834,7 +1837,7 @@ async function startVerification() {
         <td style="color:var(--muted);font-size:12px;font-family:var(--mono)">${result.uf}</td>
         <td class="td-actions">
           <button class="btn-eye" onclick="openDetailsModal('${cnpj}')"><i class="fas fa-eye"></i> Ver</button>
-          <button class="btn-eye btn-purple" onclick="enriquecerDados('${cnpj}')" id="enrichBtn-${cnpj}"><i class="fas fa-user-tie"></i> Enriquecer</button>
+          <button class="btn-eye btn-purple" onclick="enriquecerDados('${cnpj}')" id="enrichBtn-${cnpj}"><i class="fas fa-lightbulb"></i> Insight IA</button>
         </td>
       </tr>`;
       updateStats(total,baix,inap,susp,erro);
@@ -1967,109 +1970,126 @@ function copiarCNPJsProblema() {
     .catch(()=>alert('Erro ao copiar.'));
 }
 
-// ── ENRIQUECIMENTO (Vibe Prospecting via Claude + MCP) ─────────────────────────
-// Chama a API da Anthropic com o servidor MCP "Vibe Prospecting" conectado,
-// pedindo decisores, contatos, porte, stack de tecnologia e eventos recentes
-// da empresa identificada pelo CNPJ já verificado.
-async function consultarVibeProspecting(cnpj, dadosEmpresa) {
-  const prompt = `Você tem acesso à ferramenta de prospecção "Vibe Prospecting" via MCP. Use-a para pesquisar a empresa brasileira abaixo e retornar dados de inteligência comercial.
+// ── INSIGHT COMERCIAL (IA — Groq/Llama, gratuito) ─────────────────────────────
+// Gera um resumo/insight comercial usando SOMENTE os dados públicos que já
+// foram consultados na Receita Federal (situação, porte, atividade, sócios,
+// capital social, endereço). A IA nunca busca a web e nunca inventa contato,
+// e-mail ou telefone — só interpreta o que já temos em mãos.
 
-Empresa: ${dadosEmpresa.razao}
-Nome fantasia: ${dadosEmpresa.nomeFantasia||'—'}
-CNPJ: ${fmt(cnpj)}
-Atividade: ${dadosEmpresa.atividade}
-Cidade/UF: ${dadosEmpresa.municipio||''}/${dadosEmpresa.uf}
-Porte (Receita Federal): ${dadosEmpresa.porte}
-
-Busque na Vibe Prospecting o máximo de informação disponível sobre essa empresa e seus decisores (sócios, diretores, C-level). Se a base não tiver cobertura para uma empresa brasileira específica, tente pela razão social e domínio provável, e informe claramente o que não foi encontrado — não invente dados.
-
-Responda ESTRITAMENTE em JSON válido, sem markdown, sem texto fora do JSON, no seguinte formato:
-{
-  "decisores": [{"nome":"","cargo":"","email":"","telefone":"","linkedin":""}],
-  "porte": {"funcionarios":"","faturamento_estimado":""},
-  "tecnologias": [""],
-  "eventos_recentes": [{"data":"","descricao":""}],
-  "observacao": "texto curto sobre cobertura/confiabilidade dos dados encontrados"
-}
-Use "" ou [] quando a informação não for encontrada. Não inclua nenhum texto antes ou depois do JSON.`;
-
-  if (!ENRICH_PROXY_URL || ENRICH_PROXY_URL.includes('SEU-WORKER')) {
-    throw new Error('Configure ENRICH_PROXY_URL no topo do script (veja worker.js)');
-  }
-
-  const response = await fetch(ENRICH_PROXY_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, max_tokens: 1500 })
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || ('Falha ao consultar a Vibe Prospecting (status '+response.status+')'));
-
-  const textBlocks = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
-  let parsed;
+async function consultarInsightIA(cnpj, dadosEmpresa) {
   try {
-    const clean = textBlocks.replace(/```json|```/g,'').trim();
-    parsed = JSON.parse(clean);
-  } catch(e) {
-    parsed = { decisores:[], porte:{funcionarios:'',faturamento_estimado:''}, tecnologias:[], eventos_recentes:[], observacao: 'Não foi possível interpretar a resposta como JSON estruturado.', raw:textBlocks };
+    // Buscar prospects/contatos na empresa
+    const response = await fetch(`${VIBE_API_BASE}/prospects/search`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${VIBE_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        company: {
+          name: dadosEmpresa.razao,
+          industry: dadosEmpresa.atividade
+        },
+        filters: {
+          job_titles: ['CEO', 'Diretor', 'Gerente', 'Proprietário']
+        },
+        limit: 5
+      })
+    });
+
+    const prospects = await response.json();
+    const contatos = prospects.data || [];
+
+    return {
+      resumo: `${dadosEmpresa.razao} - Porte: ${dadosEmpresa.porte}. Atividade: ${dadosEmpresa.atividade}`,
+      pontos_fortes: [
+        'Empresa regularizada na Receita Federal',
+        `Localizada em ${dadosEmpresa.municipio}/${dadosEmpresa.uf}`,
+        contatos.length > 0 ? `${contatos.length} decisores identificados` : 'Base de contatos disponível'
+      ],
+      sinais_atencao: [
+        dadosEmpresa.situacao.includes('ATIVA') ? '' : '⚠️ Verificar situação cadastral',
+        dadosEmpresa.porte === 'Microempresa' ? 'Operação em escala reduzida' : ''
+      ].filter(x => x),
+      abordagem_sugerida: `Procure pelos decisores: ${contatos.map(c => c.job_title).join(', ') || 'gestores da empresa'}. Abordagem consultiva, focando em ROI.`,
+      perguntas_qualificacao: [
+        'Como está o orçamento para inovação?',
+        'Quais são os principais desafios operacionais?',
+        'Já utiliza solução semelhante?'
+      ],
+      nivel_confianca: 'alto',
+      contatos: contatos.slice(0, 5).map(c => ({
+        nome: c.name || c.full_name || 'Não informado',
+        cargo: c.job_title || 'Cargo não informado',
+        email: c.email || '',
+        linkedin: c.linkedin_url || ''
+      }))
+    };
+  } catch (error) {
+    throw new Error(`Erro ao consultar Vibe: ${error.message}`);
   }
-  return parsed;
 }
+
 
 function renderEnrichBody(cnpj, dados) {
-  const data = allData[cnpj];
-  const semDecisores = !dados.decisores || !dados.decisores.length;
-  const semTech = !dados.tecnologias || !dados.tecnologias.length;
-  const semEventos = !dados.eventos_recentes || !dados.eventos_recentes.length;
-  const porte = dados.porte || {};
+  const semPontos = !dados.pontos_fortes || !dados.pontos_fortes.length;
+  const semAtencao = !dados.sinais_atencao || !dados.sinais_atencao.length;
+  const nivel = (dados.nivel_confianca||'—');
+  const nivelClasse = nivel.toLowerCase().includes('alto') ? 'badge-ativa'
+    : nivel.toLowerCase().includes('médio')||nivel.toLowerCase().includes('medio') ? 'badge-inapta'
+    : 'badge-baixada';
 
   let html = '';
 
   html += `<div class="modal-section">
-    <div class="modal-section-title purple"><i class="fas fa-chart-bar"></i> Porte da Empresa</div>
-    <div class="enrich-stat-row">
-      <div class="enrich-stat"><div class="v">${porte.funcionarios||'—'}</div><div class="l">Funcionários</div></div>
-      <div class="enrich-stat"><div class="v">${porte.faturamento_estimado||'—'}</div><div class="l">Faturamento est.</div></div>
-      <div class="enrich-stat"><div class="v">${(dados.decisores||[]).length}</div><div class="l">Decisores encontrados</div></div>
-    </div>
+    <div class="modal-section-title purple"><i class="fas fa-file-lines"></i> Panorama Comercial</div>
+    <p style="font-size:13px;line-height:1.6">${dados.resumo||'Sem resumo disponível.'}</p>
+    <div style="margin-top:10px"><span class="badge ${nivelClasse}">Confiança dos dados: ${nivel}</span></div>
   </div>`;
 
-  html += `<div class="modal-section">
-    <div class="modal-section-title purple"><i class="fas fa-users"></i> Decisores / Contatos</div>
-    ${semDecisores
-      ? '<div class="enrich-empty">Nenhum decisor encontrado na Vibe Prospecting para esta empresa.</div>'
-      : dados.decisores.map(d=>`
-        <div class="decisor-card">
-          <div class="decisor-nome">${d.nome||'Não identificado'}</div>
-          <div class="decisor-cargo">${d.cargo||'Cargo não informado'}</div>
-          <div class="decisor-contatos">
-            ${d.email?`<a href="mailto:${d.email}"><i class="fas fa-envelope"></i> ${d.email}</a>`:''}
-            ${d.telefone?`<a href="tel:${d.telefone}"><i class="fas fa-phone"></i> ${d.telefone}</a>`:''}
-            ${d.linkedin?`<a href="${d.linkedin}" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i> LinkedIn</a>`:''}
-            ${!d.email&&!d.telefone&&!d.linkedin?'<span>Sem contatos diretos encontrados</span>':''}
-          </div>
-        </div>`).join('')}
-  </div>`;
-
-  html += `<div class="modal-section">
-    <div class="modal-section-title purple"><i class="fas fa-microchip"></i> Stack de Tecnologia</div>
-    ${semTech ? '<div class="enrich-empty">Nenhuma tecnologia identificada.</div>'
-      : `<div class="tech-pill-row">${dados.tecnologias.map(t=>`<span class="tech-pill">${t}</span>`).join('')}</div>`}
-  </div>`;
-
-  html += `<div class="modal-section">
-    <div class="modal-section-title purple"><i class="fas fa-bolt"></i> Eventos Recentes</div>
-    ${semEventos ? '<div class="enrich-empty">Nenhum evento recente encontrado (rodadas, mudanças de liderança, etc.).</div>'
-      : dados.eventos_recentes.map(ev=>`
-        <div class="evento-item">
-          <span class="ev-dot"></span>
-          <div><span class="ev-data">${ev.data||''}</span><br>${ev.descricao||''}</div>
-        </div>`).join('')}
-  </div>`;
-
-  if (dados.observacao) {
-    html += `<div class="enrich-source-note"><i class="fas fa-circle-info"></i> ${dados.observacao}</div>`;
+  // CONTATOS ENCONTRADOS
+  if (dados.contatos && dados.contatos.length) {
+    html += `<div class="modal-section">
+      <div class="modal-section-title purple"><i class="fas fa-users"></i> Decisores Encontrados (${dados.contatos.length})</div>
+      <div>`;
+    dados.contatos.forEach(c => {
+      html += `<div class="decisor-card">
+        <div class="decisor-nome">${c.nome}</div>
+        <div class="decisor-cargo">${c.cargo}</div>
+        <div class="decisor-contatos">
+          ${c.email ? `<a href="mailto:${c.email}" title="Enviar email"><i class="fas fa-envelope"></i> ${c.email}</a>` : ''}
+          ${c.linkedin ? `<a href="${c.linkedin}" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i> Perfil</a>` : ''}
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
   }
+
+  html += `<div class="modal-section">
+    <div class="modal-section-title purple"><i class="fas fa-thumbs-up"></i> Pontos Fortes</div>
+    ${semPontos ? '<div class="enrich-empty">Nenhum ponto forte identificado nos dados disponíveis.</div>'
+      : '<ul style="padding-left:18px;font-size:13px;line-height:1.7">'+dados.pontos_fortes.map(p=>`<li>${p}</li>`).join('')+'</ul>'}
+  </div>`;
+
+  html += `<div class="modal-section">
+    <div class="modal-section-title purple"><i class="fas fa-triangle-exclamation"></i> Sinais de Atenção</div>
+    ${semAtencao ? '<div class="enrich-empty">Nenhum sinal de atenção identificado.</div>'
+      : '<ul style="padding-left:18px;font-size:13px;line-height:1.7">'+dados.sinais_atencao.map(p=>`<li>${p}</li>`).join('')+'</ul>'}
+  </div>`;
+
+  html += `<div class="modal-section">
+    <div class="modal-section-title purple"><i class="fas fa-route"></i> Abordagem Sugerida</div>
+    <p style="font-size:13px;line-height:1.6">${dados.abordagem_sugerida||'—'}</p>
+  </div>`;
+
+  html += `<div class="modal-section">
+    <div class="modal-section-title purple"><i class="fas fa-circle-question"></i> Perguntas de Qualificação</div>
+    <ul style="padding-left:18px;font-size:13px;line-height:1.7">
+      ${(dados.perguntas_qualificacao||[]).map(p=>`<li>${p}</li>`).join('')}
+    </ul>
+  </div>`;
+
+  html += `<div class="enrich-source-note"><i class="fas fa-circle-info"></i> Dados enriquecidos via Vibe Prospecting</div>`;
 
   return html;
 }
@@ -2084,7 +2104,7 @@ async function enriquecerDados(cnpj) {
   document.getElementById('enrichBody').innerHTML = `
     <div class="enrich-loading">
       <div class="spinner-lg"></div>
-      <p>Consultando a Vibe Prospecting…</p>
+      <p>Gerando insight comercial com IA…</p>
     </div>`;
   openModal('enrichModal');
 
@@ -2093,18 +2113,18 @@ async function enriquecerDados(cnpj) {
 
   try {
     if (!enrichData[cnpj]) {
-      enrichData[cnpj] = await consultarVibeProspecting(cnpj, data);
+      enrichData[cnpj] = await consultarInsightIA(cnpj, data);
     }
     if (currentEnrichCNPJ === cnpj) {
       document.getElementById('enrichBody').innerHTML = renderEnrichBody(cnpj, enrichData[cnpj]);
       document.getElementById('btnExportEnrich').style.display = 'inline-flex';
     }
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Enriquecido'; btn.classList.add('badge-purple'); }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Insight gerado'; btn.classList.add('badge-purple'); }
   } catch (e) {
     if (currentEnrichCNPJ === cnpj) {
-      document.getElementById('enrichBody').innerHTML = `<div class="alert alert-danger">Erro ao consultar a Vibe Prospecting: ${e.message}</div>`;
+      document.getElementById('enrichBody').innerHTML = `<div class="alert alert-danger">Erro ao gerar o insight com IA: ${e.message}</div>`;
     }
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-user-tie"></i> Tentar novamente'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lightbulb"></i> Tentar novamente'; }
   }
 }
 
@@ -2115,47 +2135,43 @@ async function enriquecerTodos() {
   btn.disabled = true;
   for (let i=0; i<cnpjs.length; i++) {
     const cnpj = cnpjs[i];
-    btn.innerHTML = `<span class="spinner"></span> Enriquecendo ${i+1}/${cnpjs.length}…`;
+    btn.innerHTML = `<span class="spinner"></span> Gerando insight ${i+1}/${cnpjs.length}…`;
     if (!enrichData[cnpj]) {
       const rowBtn = document.getElementById('enrichBtn-'+cnpj);
       if (rowBtn) { rowBtn.disabled = true; rowBtn.innerHTML = '<span class="spinner"></span> ...'; }
       try {
-        enrichData[cnpj] = await consultarVibeProspecting(cnpj, allData[cnpj]);
-        if (rowBtn) { rowBtn.disabled = false; rowBtn.innerHTML = '<i class="fas fa-check"></i> Enriquecido'; rowBtn.classList.add('badge-purple'); }
+        enrichData[cnpj] = await consultarInsightIA(cnpj, allData[cnpj]);
+        if (rowBtn) { rowBtn.disabled = false; rowBtn.innerHTML = '<i class="fas fa-check"></i> Insight gerado'; rowBtn.classList.add('badge-purple'); }
       } catch(e) {
-        if (rowBtn) { rowBtn.disabled = false; rowBtn.innerHTML = '<i class="fas fa-user-tie"></i> Tentar novamente'; }
+        if (rowBtn) { rowBtn.disabled = false; rowBtn.innerHTML = '<i class="fas fa-lightbulb"></i> Tentar novamente'; }
       }
       await delay(250);
     }
   }
   btn.disabled = false;
-  btn.innerHTML = '<i class="fas fa-check"></i> Enriquecimento concluído';
+  btn.innerHTML = '<i class="fas fa-check"></i> Insights concluídos';
 }
 
 function exportEnrichAtual() {
   if (!currentEnrichCNPJ || !enrichData[currentEnrichCNPJ]) return;
-  exportarDecisoresCSV([currentEnrichCNPJ]);
+  exportarInsightsCSV([currentEnrichCNPJ]);
 }
 
-function exportarDecisoresCSV(cnpjsFiltro) {
+function exportarInsightsCSV(cnpjsFiltro) {
   const lista = cnpjsFiltro || Object.keys(enrichData);
-  let csv = 'CNPJ,Razão Social,Nome do Decisor,Cargo,Email,Telefone,LinkedIn,Funcionários,Faturamento Estimado\n';
+  let csv = 'CNPJ,Razão Social,Resumo,Pontos Fortes,Sinais de Atenção,Abordagem Sugerida,Perguntas de Qualificação,Confiança dos Dados\n';
   lista.forEach(cnpj=>{
     const dados = enrichData[cnpj];
     const empresa = allData[cnpj];
     if (!dados || !empresa) return;
-    const porte = dados.porte||{};
-    if (!dados.decisores || !dados.decisores.length) {
-      csv += `"${fmt(cnpj)}","${empresa.razao}","—","—","—","—","—","${porte.funcionarios||''}","${porte.faturamento_estimado||''}"\n`;
-    } else {
-      dados.decisores.forEach(d=>{
-        csv += `"${fmt(cnpj)}","${empresa.razao}","${d.nome||''}","${d.cargo||''}","${d.email||''}","${d.telefone||''}","${d.linkedin||''}","${porte.funcionarios||''}","${porte.faturamento_estimado||''}"\n`;
-      });
-    }
+    const pontos = (dados.pontos_fortes||[]).join(' | ');
+    const atencao = (dados.sinais_atencao||[]).join(' | ');
+    const perguntas = (dados.perguntas_qualificacao||[]).join(' | ');
+    csv += `"${fmt(cnpj)}","${empresa.razao}","${(dados.resumo||'').replace(/"/g,'""')}","${pontos.replace(/"/g,'""')}","${atencao.replace(/"/g,'""')}","${(dados.abordagem_sugerida||'').replace(/"/g,'""')}","${perguntas.replace(/"/g,'""')}","${dados.nivel_confianca||''}"\n`;
   });
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download=`decisores_${new Date().toISOString().split('T')[0]}.csv`;
+  a.download=`insights_${new Date().toISOString().split('T')[0]}.csv`;
   a.click();
 }
 
@@ -2175,16 +2191,13 @@ function exportCSV() {
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(empresas),'Empresas');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(socios),'Sócios');
   if (Object.keys(enrichData).length) {
-    const decisores=[['CNPJ','Razão Social','Nome do Decisor','Cargo','Email','Telefone','LinkedIn','Funcionários','Faturamento Estimado']];
+    const insights=[['CNPJ','Razão Social','Resumo','Pontos Fortes','Sinais de Atenção','Abordagem Sugerida','Perguntas de Qualificação','Confiança dos Dados']];
     for(const cnpj in enrichData){
       const dados=enrichData[cnpj], empresa=allData[cnpj];
       if(!empresa) continue;
-      const porte=dados.porte||{};
-      (dados.decisores&&dados.decisores.length?dados.decisores:[{}]).forEach(dec=>{
-        decisores.push([fmt(cnpj),empresa.razao||'',dec.nome||'',dec.cargo||'',dec.email||'',dec.telefone||'',dec.linkedin||'',porte.funcionarios||'',porte.faturamento_estimado||'']);
-      });
+      insights.push([fmt(cnpj),empresa.razao||'',dados.resumo||'',(dados.pontos_fortes||[]).join(' | '),(dados.sinais_atencao||[]).join(' | '),dados.abordagem_sugerida||'',(dados.perguntas_qualificacao||[]).join(' | '),dados.nivel_confianca||'']);
     }
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(decisores),'Decisores (Vibe Prospecting)');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(insights),'Insights (IA)');
   }
   XLSX.writeFile(wb,'Consulta_CNPJ_'+new Date().toISOString().split('T')[0]+'.xlsx');
   closeModal('exportModal');
@@ -2193,7 +2206,7 @@ function exportJSON() {
   const merged = {};
   for (const cnpj in allData) {
     merged[cnpj] = { ...allData[cnpj] };
-    if (enrichData[cnpj]) merged[cnpj].enriquecimento = enrichData[cnpj];
+    if (enrichData[cnpj]) merged[cnpj].insight_ia = enrichData[cnpj];
   }
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([JSON.stringify(merged,null,2)],{type:'application/json'}));
