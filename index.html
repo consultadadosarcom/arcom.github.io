@@ -112,6 +112,16 @@ function copiarProspeccao(){
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border-lit); border-radius: 99px; }
 
+    /* ── PARTÍCULAS DE FUNDO ── */
+    #particleCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      display: block;
+    }
+
     
     .topbar {
       position: sticky;
@@ -167,7 +177,7 @@ function copiarProspeccao(){
     .topbar-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(59,130,246,.08); }
 
     
-    .page { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 56px); }
+    .page { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 56px); position: relative; z-index: 1; }
 
     
     .sidebar {
@@ -292,7 +302,7 @@ function copiarProspeccao(){
       background: var(--accent);
       color: #fff;
     }
-    .btn-primary:hover { background: #2563eb; }
+    .btn-primary:hover { background: #2563eb; filter: brightness(1.05); }
     .btn-ghost {
       background: transparent;
       border-color: var(--border);
@@ -785,6 +795,67 @@ function copiarProspeccao(){
     }
     .footer strong { color: var(--accent); }
 
+    /* ── APARÊNCIA (settings) ── */
+    .appearance-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .appearance-row:last-child { border-bottom: none; }
+    .appearance-row label { font-size: 13px; }
+    .appearance-row small { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .color-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    input[type="color"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 3px; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer;
+      inset: 0;
+      background: var(--border-lit);
+      border-radius: 99px;
+      transition: .2s;
+    }
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      height: 16px; width: 16px;
+      left: 3px; bottom: 3px;
+      background: var(--muted);
+      border-radius: 50%;
+      transition: .2s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: rgba(59,130,246,.3); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); background: var(--accent); }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 1024px) {
       .page { grid-template-columns: 1fr; }
@@ -804,6 +875,9 @@ function copiarProspeccao(){
   </style>
 </head>
 <body>
+
+<!-- FUNDO DE PARTÍCULAS -->
+<canvas id="particleCanvas"></canvas>
 
 <!-- TOPBAR -->
 <nav class="topbar">
@@ -1177,13 +1251,59 @@ Formatos aceitos: 12345678000195 ou 12.345.678/0001-95"></textarea>
 
 <!-- MODAL: SETTINGS -->
 <div class="modal-overlay" id="settingsModal">
-  <div class="modal-box" style="max-width:360px">
+  <div class="modal-box" style="max-width:400px">
     <div class="modal-head">
       <div><p class="modal-head-razao">Configurações</p></div>
       <button class="modal-close" onclick="closeModal('settingsModal')"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:.8px;font-weight:600">Colunas visíveis</p>
+
+      <p style="font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px;font-weight:600">Aparência</p>
+
+      <div class="appearance-row">
+        <div>
+          <label for="colorAccent">Cor de destaque</label>
+          <small>Usada em botões, links e no fundo</small>
+        </div>
+        <div class="color-input-wrap">
+          <input type="color" id="colorAccent" value="#3b82f6" oninput="applyAccentColor()">
+        </div>
+      </div>
+
+      <div class="appearance-row">
+        <div>
+          <label for="colorAccent2">Cor secundária</label>
+          <small>Usada em gradientes (logo, barra de progresso)</small>
+        </div>
+        <div class="color-input-wrap">
+          <input type="color" id="colorAccent2" value="#6366f1" oninput="applyAccentColor()">
+        </div>
+      </div>
+
+      <div class="appearance-row">
+        <div>
+          <label for="toggleParticles">Partículas no fundo</label>
+          <small>Rede de pontos conectados</small>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggleParticles" checked onchange="toggleParticles()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="appearance-row" style="flex-direction:column;align-items:stretch;gap:6px">
+        <div style="display:flex;justify-content:space-between">
+          <label for="particleDensity">Densidade das partículas</label>
+          <small id="particleDensityVal">60</small>
+        </div>
+        <input type="range" id="particleDensity" min="10" max="150" value="60" oninput="updateParticleDensity()">
+      </div>
+
+      <button class="btn btn-ghost" style="margin-top:12px;width:100%;font-size:12px" onclick="resetAccentColor()">
+        <i class="fas fa-rotate-left"></i> Restaurar cores padrão
+      </button>
+
+      <p style="font-size:12px;color:var(--muted);margin:20px 0 6px;text-transform:uppercase;letter-spacing:.8px;font-weight:600">Colunas visíveis</p>
       <label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;font-size:14px">
         <input type="checkbox" id="colCNPJ" checked> CNPJ
       </label>
@@ -1240,6 +1360,125 @@ function showExportMenu() { openModal('exportModal'); }
 // ── API SELECT ───────────────────────────────────────────────────────────────
 function selectAPI(api) { selectedAPI = api; }
 
+// ── APARÊNCIA (cores + partículas) ───────────────────────────────────────────
+const DEFAULT_ACCENT  = '#3b82f6';
+const DEFAULT_ACCENT2 = '#6366f1';
+
+function loadThemeSettings() {
+  const saved = JSON.parse(localStorage.getItem('themeSettings') || 'null');
+  const accent  = saved?.accent  || DEFAULT_ACCENT;
+  const accent2 = saved?.accent2 || DEFAULT_ACCENT2;
+  document.documentElement.style.setProperty('--accent', accent);
+  document.documentElement.style.setProperty('--accent2', accent2);
+  const inpA = document.getElementById('colorAccent');
+  const inpB = document.getElementById('colorAccent2');
+  if (inpA) inpA.value = accent;
+  if (inpB) inpB.value = accent2;
+}
+function applyAccentColor() {
+  const accent  = document.getElementById('colorAccent').value;
+  const accent2 = document.getElementById('colorAccent2').value;
+  document.documentElement.style.setProperty('--accent', accent);
+  document.documentElement.style.setProperty('--accent2', accent2);
+  localStorage.setItem('themeSettings', JSON.stringify({ accent, accent2 }));
+}
+function resetAccentColor() {
+  document.documentElement.style.setProperty('--accent', DEFAULT_ACCENT);
+  document.documentElement.style.setProperty('--accent2', DEFAULT_ACCENT2);
+  localStorage.removeItem('themeSettings');
+  document.getElementById('colorAccent').value = DEFAULT_ACCENT;
+  document.getElementById('colorAccent2').value = DEFAULT_ACCENT2;
+}
+
+// ── PARTÍCULAS DE FUNDO (rede/constelação) ───────────────────────────────────
+let particleCanvas, particleCtx, particles = [], particleAnimId = null;
+let particleSettings = JSON.parse(localStorage.getItem('particleSettings') || 'null') || { enabled: true, density: 60 };
+
+function hexToRgb(hex) {
+  hex = (hex || '').replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  const num = parseInt(hex, 16) || 0x3b82f6;
+  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+}
+function getParticleColorHex() {
+  return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || DEFAULT_ACCENT;
+}
+function resizeParticleCanvas() {
+  if (!particleCanvas) return;
+  particleCanvas.width = window.innerWidth;
+  particleCanvas.height = window.innerHeight;
+}
+function initParticles() {
+  particleCanvas = document.getElementById('particleCanvas');
+  if (!particleCanvas) return;
+  particleCtx = particleCanvas.getContext('2d');
+  resizeParticleCanvas();
+  particles = [];
+  const count = particleSettings.density;
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * particleCanvas.width,
+      y: Math.random() * particleCanvas.height,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      r: Math.random() * 1.4 + 0.6
+    });
+  }
+  if (particleAnimId) cancelAnimationFrame(particleAnimId);
+  if (particleSettings.enabled) animateParticles();
+  else particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+}
+function animateParticles() {
+  if (!particleCtx || !particleSettings.enabled) return;
+  particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+  const { r, g, b } = hexToRgb(getParticleColorHex());
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0 || p.x > particleCanvas.width) p.vx *= -1;
+    if (p.y < 0 || p.y > particleCanvas.height) p.vy *= -1;
+  });
+  const maxDist = 140;
+  for (let i = 0; i < particles.length; i++) {
+    const p1 = particles[i];
+    particleCtx.beginPath();
+    particleCtx.arc(p1.x, p1.y, p1.r, 0, Math.PI * 2);
+    particleCtx.fillStyle = `rgba(${r},${g},${b},0.65)`;
+    particleCtx.fill();
+    for (let j = i + 1; j < particles.length; j++) {
+      const p2 = particles[j];
+      const dx = p1.x - p2.x, dy = p1.y - p2.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < maxDist) {
+        particleCtx.beginPath();
+        particleCtx.moveTo(p1.x, p1.y);
+        particleCtx.lineTo(p2.x, p2.y);
+        particleCtx.strokeStyle = `rgba(${r},${g},${b},${0.18 * (1 - dist / maxDist)})`;
+        particleCtx.lineWidth = 1;
+        particleCtx.stroke();
+      }
+    }
+  }
+  particleAnimId = requestAnimationFrame(animateParticles);
+}
+function toggleParticles() {
+  particleSettings.enabled = document.getElementById('toggleParticles').checked;
+  localStorage.setItem('particleSettings', JSON.stringify(particleSettings));
+  if (particleSettings.enabled) {
+    animateParticles();
+  } else {
+    if (particleAnimId) cancelAnimationFrame(particleAnimId);
+    if (particleCtx) particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+  }
+}
+function updateParticleDensity() {
+  const val = parseInt(document.getElementById('particleDensity').value, 10);
+  particleSettings.density = val;
+  document.getElementById('particleDensityVal').textContent = val;
+  localStorage.setItem('particleSettings', JSON.stringify(particleSettings));
+  initParticles();
+}
+window.addEventListener('resize', () => { if (particleCanvas) resizeParticleCanvas(); });
+
 // ── CNPJ HELPERS ─────────────────────────────────────────────────────────────
 function isValidCNPJ(cnpj) {
   cnpj = norm(cnpj);
@@ -1294,7 +1533,14 @@ function clearHistory() {
   localStorage.removeItem('cnpjHistory');
   renderHistory();
 }
-window.addEventListener('load', renderHistory);
+window.addEventListener('load', () => {
+  renderHistory();
+  loadThemeSettings();
+  document.getElementById('toggleParticles').checked = particleSettings.enabled;
+  document.getElementById('particleDensity').value = particleSettings.density;
+  document.getElementById('particleDensityVal').textContent = particleSettings.density;
+  initParticles();
+});
 
 // ── API CALLS ─────────────────────────────────────────────────────────────────
 async function consultarBrasilAPI(cnpj) {
