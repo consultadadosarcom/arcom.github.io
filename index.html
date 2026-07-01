@@ -75,7 +75,13 @@ function copiarProspeccao(){
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 
+  <!-- ═══ FIREBASE SDK (Chat) ═══ -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
   <style>
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -872,6 +878,213 @@ function copiarProspeccao(){
       .enrich-stat-row { grid-template-columns: 1fr; }
       .tab-panel { padding: 16px; }
     }
+
+    /* ═══════════════ CHAT WIDGET ═══════════════ */
+    #chatToggleBtn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(59,130,246,.35);
+      z-index: 1000;
+      transition: transform .15s ease;
+    }
+    #chatToggleBtn:hover { transform: scale(1.06); }
+    #chatToggleBtn .chat-badge {
+      position: absolute;
+      top: -4px; right: -4px;
+      background: var(--red);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 99px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      font-family: var(--mono);
+    }
+
+    #chatPanel {
+      position: fixed;
+      bottom: 96px;
+      right: 24px;
+      width: 340px;
+      max-width: calc(100vw - 32px);
+      height: 480px;
+      max-height: calc(100vh - 140px);
+      background: var(--surface);
+      border: 1px solid var(--border-lit);
+      border-radius: var(--radius);
+      box-shadow: var(--glow), 0 20px 60px rgba(0,0,0,.5);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
+    }
+    #chatPanel.open { display: flex; }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .chat-header .dot-live {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      flex-shrink: 0;
+    }
+    .chat-header strong { font-size: 14px; font-weight: 600; }
+    .chat-header .chat-close {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .chat-header .chat-close:hover { background: var(--border); color: var(--text); }
+
+    #chatMessages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-msg { max-width: 88%; }
+    .chat-msg.own { align-self: flex-end; }
+    .chat-msg .chat-msg-meta {
+      font-size: 10.5px;
+      color: var(--muted);
+      margin-bottom: 3px;
+      font-family: var(--mono);
+      display: flex;
+      gap: 6px;
+    }
+    .chat-msg.own .chat-msg-meta { justify-content: flex-end; }
+    .chat-msg .chat-msg-bubble {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+    .chat-msg.own .chat-msg-bubble {
+      background: rgba(59,130,246,.14);
+      border-color: rgba(59,130,246,.35);
+    }
+    .chat-empty {
+      margin: auto;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 20px;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+      padding: 10px;
+      border-top: 1px solid var(--border);
+      background: var(--surface2);
+      flex-shrink: 0;
+    }
+    .chat-input-row input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      outline: none;
+    }
+    .chat-input-row input:focus { border-color: var(--accent); }
+    .chat-input-row button {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      width: 38px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .chat-input-row button:hover { background: var(--accent2); }
+    .chat-input-row button:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* Modal de nome */
+    #chatNameOverlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 1001;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #chatNameOverlay.open { display: flex; }
+    .chat-name-box {
+      background: var(--surface);
+      border: 1px solid var(--border-lit);
+      border-radius: var(--radius);
+      padding: 22px;
+      width: 300px;
+      box-shadow: var(--glow);
+    }
+    .chat-name-box h3 { font-size: 15px; margin-bottom: 6px; }
+    .chat-name-box p { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
+    .chat-name-box input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    .chat-name-box input:focus { border-color: var(--accent); }
+    .chat-name-box button {
+      width: 100%;
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .chat-name-box button:hover { background: var(--accent2); }
   </style>
 </head>
 <body>
@@ -2217,5 +2430,191 @@ async function analyzeRegional(){
 
 function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 </script>
+
+<!-- ═══════════════ CHAT WIDGET (Firebase) ═══════════════ -->
+
+<!-- Modal para digitar o nome -->
+<div id="chatNameOverlay">
+  <div class="chat-name-box">
+    <h3>Entrar no chat</h3>
+    <p>Escolha um nome para aparecer nas mensagens.</p>
+    <input id="chatNameInput" type="text" placeholder="Seu nome" maxlength="30">
+    <button onclick="chatEntrar()">Entrar no chat</button>
+  </div>
+</div>
+
+<!-- Botão flutuante -->
+<button id="chatToggleBtn" onclick="chatToggle()" title="Chat">
+  <i class="fas fa-comment-dots"></i>
+  <span class="chat-badge" id="chatBadge">0</span>
+</button>
+
+<!-- Painel do chat -->
+<div id="chatPanel">
+  <div class="chat-header">
+    <span class="dot-live"></span>
+    <strong>Chat ao vivo</strong>
+    <button class="chat-close" onclick="chatToggle()"><i class="fas fa-times"></i></button>
+  </div>
+  <div id="chatMessages"><div class="chat-empty">Carregando mensagens…</div></div>
+  <div class="chat-input-row">
+    <input id="chatInput" type="text" placeholder="Digite uma mensagem…" maxlength="500" onkeydown="if(event.key==='Enter')chatEnviar()">
+    <button id="chatSendBtn" onclick="chatEnviar()"><i class="fas fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CONFIGURAÇÃO DO FIREBASE
+   Substitua os valores abaixo pelos dados do SEU projeto Firebase:
+   Console Firebase > Configurações do projeto > Geral >
+   "Seus apps" > ícone Web (</>) > SDK setup and configuration > "Config"
+   ═══════════════════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDPIZIPl9zlQW1xUptgP4OlJkiTlFEnN4g",
+  authDomain: "consulta-cnpj-efe7c.firebaseapp.com",
+  databaseURL: "https://consulta-cnpj-efe7c-default-rtdb.firebaseio.com",
+  projectId: "consulta-cnpj-efe7c",
+  storageBucket: "consulta-cnpj-efe7c.firebasestorage.app",
+  messagingSenderId: "978339964025",
+  appId: "1:978339964025:web:c303d79519cc37efc720a8",
+  measurementId: "G-Z8J38Y2Z59"
+};
+
+firebase.initializeApp(firebaseConfig);
+const chatDb = firebase.firestore();
+const chatAuth = firebase.auth();
+
+const CHAT_COLLECTION = "site_chat_global"; // sala pública única
+const CHAT_LIMIT = 100; // últimas N mensagens carregadas
+
+let chatUid = null;
+let chatNome = localStorage.getItem('chat_nome') || '';
+let chatUnsub = null;
+let chatAberto = false;
+let chatNaoLidas = 0;
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// Autenticação anônima — cada visitante recebe um UID único da sessão
+chatAuth.signInAnonymously().catch(err=>{
+  console.error('Erro ao autenticar no chat:', err);
+});
+
+chatAuth.onAuthStateChanged(user=>{
+  if(user){
+    chatUid = user.uid;
+    if(chatNome){
+      chatIniciarListener();
+    }
+  }
+});
+
+function chatToggle(){
+  const panel = document.getElementById('chatPanel');
+  chatAberto = !chatAberto;
+  panel.classList.toggle('open', chatAberto);
+  if(chatAberto){
+    chatNaoLidas = 0;
+    atualizarBadge();
+    if(!chatNome){
+      document.getElementById('chatNameOverlay').classList.add('open');
+    } else {
+      const box = document.getElementById('chatMessages');
+      box.scrollTop = box.scrollHeight;
+      document.getElementById('chatInput').focus();
+    }
+  }
+}
+
+function chatEntrar(){
+  const val = document.getElementById('chatNameInput').value.trim();
+  if(!val){ alert('Digite um nome para continuar.'); return; }
+  chatNome = val.slice(0,30);
+  localStorage.setItem('chat_nome', chatNome);
+  document.getElementById('chatNameOverlay').classList.remove('open');
+  if(chatUid) chatIniciarListener();
+  document.getElementById('chatInput').focus();
+}
+
+function chatIniciarListener(){
+  if(chatUnsub) return; // já está escutando
+  chatUnsub = chatDb.collection(CHAT_COLLECTION)
+    .orderBy('timestamp', 'desc')
+    .limit(CHAT_LIMIT)
+    .onSnapshot(snap=>{
+      const msgs = [];
+      snap.forEach(doc=> msgs.push(doc.data()));
+      msgs.reverse();
+      renderMensagens(msgs);
+    }, err=>{
+      console.error('Erro ao ler mensagens do chat:', err);
+      document.getElementById('chatMessages').innerHTML =
+        '<div class="chat-empty">Não foi possível carregar o chat. Verifique a configuração do Firebase.</div>';
+    });
+}
+
+function renderMensagens(msgs){
+  const box = document.getElementById('chatMessages');
+  if(!msgs.length){
+    box.innerHTML = '<div class="chat-empty">Nenhuma mensagem ainda. Seja o primeiro a falar!</div>';
+    return;
+  }
+  const wasAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 40;
+  box.innerHTML = msgs.map(m=>{
+    const own = m.uid === chatUid;
+    const hora = m.timestamp && m.timestamp.toDate ?
+      m.timestamp.toDate().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
+    return `<div class="chat-msg ${own?'own':''}">
+      <div class="chat-msg-meta"><span>${escapeHtml(m.nome||'Anônimo')}</span><span>${hora}</span></div>
+      <div class="chat-msg-bubble">${escapeHtml(m.texto||'')}</div>
+    </div>`;
+  }).join('');
+  if(wasAtBottom || !chatAberto){
+    box.scrollTop = box.scrollHeight;
+  }
+  if(!chatAberto){
+    chatNaoLidas++;
+    atualizarBadge();
+  }
+}
+
+function atualizarBadge(){
+  const badge = document.getElementById('chatBadge');
+  if(chatNaoLidas > 0){
+    badge.style.display = 'flex';
+    badge.textContent = chatNaoLidas > 9 ? '9+' : chatNaoLidas;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+async function chatEnviar(){
+  const input = document.getElementById('chatInput');
+  const texto = input.value.trim();
+  if(!texto || !chatUid || !chatNome) return;
+  const btn = document.getElementById('chatSendBtn');
+  btn.disabled = true;
+  try{
+    await chatDb.collection(CHAT_COLLECTION).add({
+      uid: chatUid,
+      nome: chatNome,
+      texto: texto.slice(0,500),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    input.value = '';
+  }catch(err){
+    console.error('Erro ao enviar mensagem:', err);
+    alert('Não foi possível enviar a mensagem. Tente novamente.');
+  }
+  btn.disabled = false;
+  input.focus();
+}
+</script>
+
 </body>
 </html>
